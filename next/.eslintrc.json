@@ -1,0 +1,7 @@
+{
+  "extends": "next/core-web-vitals",
+  "ignorePatterns": ["dist/*", ".next/*", "node_modules/*", "*.json"],
+  "rules": {
+    "react-hooks/exhaustive-deps": "off"
+  }
+}

@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  frontend:
+    container_name: next
+    build:
+      context: .
+      dockerfile: next/Dockerfile
+    volumes:
+      - ./next:/usr/src/app
+    ports:
+      - 3000:3000
+    tty: true
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    working_dir: /usr/src/app
+
+  mysql:
+    image: mysql:8.0
+    container_name: chat_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password1
+      MYSQL_DATABASE: chat
+    volumes:
+      - ./config/mysql/data:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: chat_phpmyadmin
+    environment:
+      PMA_HOSTS: attendance_db
+      PMA_USER: root
+      PMA_PASSWORD: root_password1
+      PMA_ARBITRARY: 1
+    ports:
+      - "3400:80"
+    depends_on:
+      - mysql
+
+  app:
+    container_name: nest_be
+    build:
+      context: .
+      dockerfile: nest/Dockerfile
+    volumes:
+      - ./next:/backend
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    depends_on:
+      - mysql
