@@ -1,10 +1,10 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useContext } from "react";
-import Cookies from "js-cookie";
-import DropDownButton from "@/app/components/dropdownBtn";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Cookies from "js-cookie";
+import React, { useContext } from "react";
+
+import DropDownButton from "@/app/components/dropdownBtn";
 import { AppContext } from "@/app/contexts/AppContext";
 type IHeader = {
   hasAccessToken: string;
