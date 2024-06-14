@@ -1,11 +1,13 @@
 "use client";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+
+import { AppProvider } from "@/app/contexts/AppContext";
 import Footer from "@/app/layouts/footer";
 import Header from "@/app/layouts/header";
 import Sidebar from "@/app/layouts/sidebar";
-import { AppProvider } from "@/app/contexts/AppContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 export default function PagesLayout({
   children,
 }: {

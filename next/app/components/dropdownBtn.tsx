@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import Cookies from "js-cookie";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { logout } from "@/app/api/authenticate";
+import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const DropDownButton = () => {
   const [username, setUsername] = useState<string>("");
@@ -22,7 +21,6 @@ const DropDownButton = () => {
 
   const logoutUser = async () => {
     try {
-      await logout();
       clearSession();
     } catch (error: any) {
       if (error.status === 401) {

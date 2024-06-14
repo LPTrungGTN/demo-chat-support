@@ -1,26 +1,26 @@
 "use client";
 
-import { ChangeEvent, useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 
-import FormInput from "@/app/components/formInput";
-import Button from "@/app/components/button";
 import { displayError } from "@helpers/errorHandlers";
+import Cookies from "js-cookie";
+import { ChangeEvent, useEffect, useState } from "react";
+
+import Button from "@/app/components/button";
+import FormInput from "@/app/components/formInput";
 
 const FormLogin = () => {
   const Roles = {
     ADMIN: {
-      email: "admin@gmail.com",
       accessToken: "1",
-      userName: "admin",
+      email: "admin@gmail.com",
       redirectUrl: "/admin",
+      userName: "admin",
     },
     USER: {
       accessToken: "2",
-      userName: "user",
       redirectUrl: "/user",
+      userName: "user",
     },
   };
   const [email, setEmail] = useState("");
@@ -28,10 +28,9 @@ const FormLogin = () => {
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
-    if (accessToken !== undefined) {
-      if (typeof window !== "undefined") {
-        window.location.assign("/attendance/create");
-      }
+
+    if (accessToken && accessToken === "1" && typeof window !== "undefined") {
+      window.location.assign("/admin");
     }
   }, []);
 
@@ -43,33 +42,6 @@ const FormLogin = () => {
     setPassword(event.target.value);
   };
 
-  const validateLoginForm = () => {
-    // Regular expression for email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Regular expression for password format validation
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-    if (!email || !password) {
-      toast.error("Email and password are required.");
-      return false;
-    }
-
-    if (!emailRegex.test(email)) {
-      toast.error("Invalid email format.");
-      return false;
-    }
-
-    if (!passwordRegex.test(password)) {
-      toast.error(
-        "Password must be at least 8 characters long and contain both letters and numbers and special characters."
-      );
-      return false;
-    }
-
-    return true;
-  };
   const redirectTo = (url: string) => {
     if (typeof window !== "undefined") {
       window.location.assign(url);
@@ -82,16 +54,14 @@ const FormLogin = () => {
   };
 
   const Login = async () => {
-    if (!validateLoginForm()) {
-      return;
-    }
     try {
       if (email === "admin@gmail.com") {
         setLoginCookies(Roles.ADMIN.accessToken, Roles.ADMIN.userName);
         redirectTo(Roles.ADMIN.redirectUrl);
+      } else {
+        setLoginCookies(Roles.USER.accessToken, Roles.USER.userName);
+        redirectTo(Roles.USER.redirectUrl);
       }
-      setLoginCookies(Roles.USER.accessToken, Roles.USER.userName);
-      redirectTo(Roles.USER.redirectUrl);
     } catch (error: any) {
       displayError(error);
     }
