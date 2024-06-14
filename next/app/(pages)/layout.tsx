@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify";
 import { AppProvider } from "@/app/contexts/AppContext";
 import Footer from "@/app/layouts/footer";
 import Header from "@/app/layouts/header";
-import Sidebar from "@/app/layouts/sidebar";
 export default function PagesLayout({
   children,
 }: {
@@ -22,16 +21,8 @@ export default function PagesLayout({
       />
       <div className=" w-full" style={{ height: "85vh" }}>
         {hasAccessToken ? (
-          <div className="lg:grid lg:grid-cols-12">
-            <div className="col-span-2">
-              <Sidebar />
-            </div>
-
-            <div className="col-span-10 lg:mt-16">
-              <div className="pt-16 px-3 lg:px-6 lg:p-8 lg:pl-28 lg:pr-8 flex flex-col item-center">
-                {children}
-              </div>
-            </div>
+          <div className="pt-[7vh] h-screen w-full flex antialiased text-gray-200 bg-gray-900 overflow-hidden">
+            {children}
           </div>
         ) : (
           <div className="col-span-12">{children}</div>
