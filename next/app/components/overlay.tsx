@@ -1,5 +1,3 @@
-// Overlay.tsx
-
 import { FC, MouseEventHandler } from "react";
 
 type OverlayProps = {
