@@ -1,4 +1,4 @@
 /.idea
 /.vscode
-/config/mysql/data
+/config/postgresql/data
 /DEVSENSE
