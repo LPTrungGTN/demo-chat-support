@@ -1,5 +1,6 @@
-import FormLogin from "@/app/components/loginArea";
 import React from "react";
+
+import FormLogin from "@/app/components/loginArea";
 
 const LoginPage = () => {
   return (
