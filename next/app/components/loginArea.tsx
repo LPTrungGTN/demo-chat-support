@@ -1,10 +1,10 @@
 "use client";
-
 import "react-toastify/dist/ReactToastify.css";
 
 import { displayError } from "@helpers/errorHandlers";
 import Cookies from "js-cookie";
 import { ChangeEvent, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import Button from "@/app/components/button";
 import FormInput from "@/app/components/formInput";
@@ -19,6 +19,7 @@ const FormLogin = () => {
     },
     USER: {
       accessToken: "2",
+      email: "user@gmail.com",
       redirectUrl: "/user",
       userName: "user",
     },
@@ -55,13 +56,17 @@ const FormLogin = () => {
 
   const Login = async () => {
     try {
-      if (email === "admin@gmail.com") {
+      if (email === Roles.ADMIN.email) {
         setLoginCookies(Roles.ADMIN.accessToken, Roles.ADMIN.userName);
-        redirectTo(Roles.ADMIN.redirectUrl);
-      } else {
-        setLoginCookies(Roles.USER.accessToken, Roles.USER.userName);
-        redirectTo(Roles.USER.redirectUrl);
+        return redirectTo(Roles.ADMIN.redirectUrl);
       }
+
+      if (email === Roles.USER.email) {
+        setLoginCookies(Roles.USER.accessToken, Roles.USER.userName);
+        return redirectTo(Roles.USER.redirectUrl);
+      }
+
+      toast.error("Invalid email or password");
     } catch (error: any) {
       displayError(error);
     }
