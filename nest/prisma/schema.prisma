@@ -50,7 +50,6 @@ model Category {
 }
 
 model StaffCategory {
-  name                  String
   staffId               Int                      @map("staff_id")
   categoryId            Int                      @map("category_id")
 

@@ -29,7 +29,6 @@ CREATE TABLE "categories" (
 
 -- CreateTable
 CREATE TABLE "staffCategory" (
-    "name" TEXT NOT NULL,
     "staff_id" INTEGER NOT NULL,
     "category_id" INTEGER NOT NULL,
 
