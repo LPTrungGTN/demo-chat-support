@@ -1,21 +1,21 @@
-import React from "react";
-import { Pagination } from "react-headless-pagination";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React from "react";
+import { Pagination } from "react-headless-pagination";
 
 interface CustomPaginationProps {
   currentPage: number;
-  totalPages: number;
   handleChangePageClick: (page: number) => void;
+  totalPages: number;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
   currentPage,
-  totalPages,
   handleChangePageClick,
+  totalPages,
 }) => {
   return (
     <>

@@ -26,6 +26,7 @@ module.exports = {
     "package.json",
     "nest-cli.json",
     "tailwind.config.js",
+    "package-lock.json",
   ],
   rules: {
     "@typescript-eslint/interface-name-prefix": "off",

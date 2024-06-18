@@ -1,19 +1,19 @@
-import React, { ChangeEvent, KeyboardEvent } from "react";
 import { NextPage } from "next";
+import React, { ChangeEvent, KeyboardEvent } from "react";
 
 interface Props {
   label: string;
-  value: string;
-  type: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
+  type: string;
+  value: string;
 }
 const FormInput: NextPage<Props> = ({
   label,
-  value,
-  type,
   onChange,
   onKeyDown,
+  type,
+  value,
 }) => {
   return (
     <div className="flex items-center py-auto gap-26 pt-4">

@@ -16,34 +16,20 @@ services:
       - CHOKIDAR_USEPOLLING=true
     working_dir: /usr/src/app
 
-  mysql:
-    image: mysql:8.0
-    container_name: chat_db
+  pg:
+    image: postgres
+    container_name: postgres
     environment:
-      MYSQL_ROOT_PASSWORD: root_password1
-      MYSQL_DATABASE: chat
+      POSTGRES_DB: your_db_name
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
     volumes:
-      - ./config/mysql/data:/var/lib/mysql
-      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/postgresql:/var/lib/postgresql/data
     ports:
-      - "3307:3306"
-    command: --default-authentication-plugin=mysql_native_password
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: chat_phpmyadmin
-    environment:
-      PMA_HOSTS: attendance_db
-      PMA_USER: root
-      PMA_PASSWORD: root_password1
-      PMA_ARBITRARY: 1
-    ports:
-      - "3400:80"
-    depends_on:
-      - mysql
+      - "5432:5432"
 
   app:
-    container_name: nest_be
+    container_name: nest
     build:
       context: .
       dockerfile: nest/Dockerfile
@@ -54,4 +40,15 @@ services:
     environment:
       - PORT=3001
     depends_on:
-      - mysql
+      - pg
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - pg

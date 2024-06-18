@@ -15,13 +15,12 @@ const Header = ({ hasAccessToken, setHasAccessToken }: IHeader) => {
     const accessToken = Cookies.get("accessToken") || "";
     setHasAccessToken(accessToken);
   }, []);
-  //--------------------useContext--------------------
+
   const { isSidebarOpen, setIsSidebarOpen } = useContext(AppContext);
-  //---------------------- 1 -------------------------
   return (
     <>
       <header
-        className="h-[7vh] w-full flex items-center bg-gray-50 "
+        className="h-20 w-full flex items-center bg-gray-50 "
         style={{ position: "fixed", zIndex: 20 }}
       >
         {!hasAccessToken && (
