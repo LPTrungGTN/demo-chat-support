@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Staff {
+  id                     Int                      @id
+  username               String
+  password               String
+  createdAt              DateTime                 @default(now()) @map("created_at")
+
+  staffStatus            StaffStatus?
+  staffCategorys         StaffCategory[]
+  chatRooms              ChatRoom[]
+  messages               Message[]
+
+  @@map("staffs")
+}
+
+model StaffStatus {
+  staffId               Int                      @id @map("staff_id")
+  maxActiveChats        Int                      @map("max_active_chats")
+  currentActiveChats    Int                      @map("current_active_chats")
+  updatedAt             DateTime                 @updatedAt @map("updated_at")
+
+  staffs                Staff                    @relation(fields: [staffId], onDelete: Cascade, references: [id])
+
+  @@map("staffStatus")
+}
+
+model Category {
+  id                    Int                      @id
+  name                  String
+  description           String
+
+  staffCategorys        StaffCategory[]
+  chatRooms             ChatRoom[]
+
+  @@map("categories")
+}
+
+model StaffCategory {
+  name                  String
+  staffId               Int                      @map("staff_id")
+  categoryId            Int                      @map("category_id")
+
+  staff                 Staff                    @relation(fields: [staffId], references: [id])
+  category              Category                 @relation(fields: [categoryId], references: [id])
+
+  @@id([staffId, categoryId])
+  @@map("staffCategory")
+}
+
+model ChatRoom {
+  id                    Int                      @id
+  staffId               Int                      @map("staff_id")
+  categoryId            Int                      @map("category_id")
+  language              String
+  status                String
+  rating                Int
+  createdAt             DateTime                 @default(now()) @map("created_at")
+
+  messages              Message[]
+  staffs                Staff                    @relation(fields: [staffId], references: [id])
+  categories            Category                 @relation(fields: [categoryId], references: [id])
+
+  @@map("chatRooms")
+}
+
+model Message {
+  id                    Int                      @id
+  content               String
+  staffId               Int                      @map("staff_id")
+  chatRoomId            Int                      @map("chat_room_id")
+  createdAt             DateTime                 @default(now()) @map("created_at")
+
+  staffs                Staff?                   @relation(fields: [staffId], references: [id])
+  chatRooms             ChatRoom                 @relation(fields: [chatRoomId], references: [id])
+
+  @@map("messages")
+}
