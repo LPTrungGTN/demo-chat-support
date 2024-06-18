@@ -1,17 +1,19 @@
-import { Body, Controller, HttpStatus, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/login.request.dto';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly service: AuthService) {}
 
+  @Post('/login')
   public async store(
-    @Body() loginRequestDto: LoginRequestDto,
+    @Body() request: LoginRequestDto,
     @Res() res: Response,
   ): Promise<Response> {
-    return res.status(HttpStatus.OK).json({});
+    const userId = await this.service.login(request);
+    return res.status(HttpStatus.OK).json({ accessToken: userId });
   }
 }
