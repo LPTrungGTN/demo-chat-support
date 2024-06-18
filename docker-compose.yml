@@ -18,11 +18,11 @@ services:
 
   pg:
     image: postgres
-    container_name: postgres
+    hostname: db
     environment:
-      POSTGRES_DB: your_db_name
-      POSTGRES_USER: your_user
-      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - ./config/postgresql:/var/lib/postgresql/data
     ports:
