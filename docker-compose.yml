@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: nest/Dockerfile
     volumes:
-      - ./next:/backend
+      - ./nest:/backend
     ports:
       - "3001:3001"
     environment:
