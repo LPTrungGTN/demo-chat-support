@@ -39,14 +39,4 @@ module.exports = {
     "simple-import-sort/exports": "error",
     "unused-imports/no-unused-imports": "error",
   },
-
-  overrides: [
-    // disable sort-keys-custom-order for enums
-    {
-      files: ["src/common/enums/*.ts"],
-      rules: {
-        "sort-keys-custom-order/object-keys": "off",
-      },
-    },
-  ],
 };
