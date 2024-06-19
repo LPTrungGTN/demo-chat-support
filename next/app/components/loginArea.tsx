@@ -45,7 +45,6 @@ const FormLogin = () => {
       setLoginCookies(response.accessToken);
       redirectTo('/admin');
     } catch (error: any) {
-      console.log('error: ', error);
       displayError(error);
     }
   };

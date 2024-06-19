@@ -16,4 +16,13 @@ export class AuthController {
     const userId = await this.service.login(request);
     return res.status(HttpStatus.OK).json({ accessToken: userId });
   }
+
+  @Post('/logout')
+  public async logout(
+    @Body('token') token: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.service.logout(token);
+    return res.status(HttpStatus.OK).json();
+  }
 }
