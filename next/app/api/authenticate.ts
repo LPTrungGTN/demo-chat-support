@@ -2,21 +2,8 @@ import axios from 'axios';
 
 const BASE_URL = process.env.BASE_URL;
 
-interface User {
-  full_name: string;
-  id: string;
-  role_id: string;
-  timezone: string;
-}
-
-interface ResponseData {
-  token: string;
-  user: User;
-}
-
 interface LoginResponse {
-  data: ResponseData;
-  status: number;
+  accessToken: string;
 }
 
 export const login = async (
@@ -27,10 +14,6 @@ export const login = async (
     email,
     password,
   });
-  return response.data;
-};
-
-export const logout = async (): Promise<LoginResponse> => {
-  const response = await axios.post<LoginResponse>(`${BASE_URL}/auth/logout`);
+  console.log('response: ', response);
   return response.data;
 };

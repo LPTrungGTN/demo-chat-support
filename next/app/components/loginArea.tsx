@@ -5,33 +5,18 @@ import { displayError } from '@helpers/errorHandlers';
 import Cookies from 'js-cookie';
 import { ChangeEvent, useEffect, useState } from 'react';
 
+import { login } from '@/app/api/authenticate';
 import Button from '@/app/components/button';
 import FormInput from '@/app/components/formInput';
 
-import { login } from '../api/authenticate';
-
 const FormLogin = () => {
-  const Roles = {
-    ADMIN: {
-      accessToken: '1',
-      email: 'admin@gmail.com',
-      redirectUrl: '/admin',
-      userName: 'admin',
-    },
-    USER: {
-      accessToken: '2',
-      email: 'user@gmail.com',
-      redirectUrl: '/user',
-      userName: 'user',
-    },
-  };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
     const accessToken = Cookies.get('accessToken');
 
-    if (accessToken && accessToken === '1' && typeof window !== 'undefined') {
+    if (accessToken && typeof window !== 'undefined') {
       window.location.assign('/admin');
     }
   }, []);
@@ -50,29 +35,24 @@ const FormLogin = () => {
     }
   };
 
-  const setLoginCookies = (accessToken: string, userName: string) => {
+  const setLoginCookies = (accessToken: string) => {
     Cookies.set('accessToken', accessToken);
-    Cookies.set('userName', userName);
   };
 
   const Login = async () => {
     try {
-      //   if (email === Roles.ADMIN.email) {
-      //     setLoginCookies(Roles.ADMIN.accessToken, Roles.ADMIN.userName);
-      //     return redirectTo(Roles.ADMIN.redirectUrl);
-      //   }
-
-      //   if (email === Roles.USER.email) {
-      //     setLoginCookies(Roles.USER.accessToken, Roles.USER.userName);
-      //     return redirectTo(Roles.USER.redirectUrl);
-      //   }
       const response = await login(email, password);
-      console.log('response: ', response);
-
-      //   toast.error('Invalid email or password');
+      setLoginCookies(response.accessToken);
+      redirectTo('/admin');
     } catch (error: any) {
+      console.log('error: ', error);
       displayError(error);
     }
+  };
+
+  const LoginChat = async () => {
+    setLoginCookies('customer');
+    redirectTo('/user');
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -108,12 +88,9 @@ const FormLogin = () => {
           </label>
         </div>
         <div className='flex items-center pt-6'>
-          <label
-            htmlFor='forgot-password'
-            className='hover:text-blue-600 cursor-pointer'
-          >
-            Forgot password
-          </label>
+          <div className='pl-28'>
+            <Button label='Chat' onClick={LoginChat} />
+          </div>
           <div className='pl-28'>
             <Button label='Login' onClick={Login} />
           </div>
