@@ -6,4 +6,4 @@ COPY ../nest/ /backend
 
 EXPOSE 3001
 
-CMD npm install && npm run dev 
+CMD npm install && npm run start:dev 

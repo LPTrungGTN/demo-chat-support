@@ -15,18 +15,22 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     working_dir: /usr/src/app
+    networks:
+      - chat_bot_network
 
   pg:
     image: postgres
-    container_name: postgres
+    hostname: db
     environment:
-      POSTGRES_DB: your_db_name
-      POSTGRES_USER: your_user
-      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - ./config/postgresql:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - chat_bot_network
 
   app:
     container_name: nest
@@ -34,13 +38,15 @@ services:
       context: .
       dockerfile: nest/Dockerfile
     volumes:
-      - ./next:/backend
+      - ./nest:/backend
     ports:
       - "3001:3001"
     environment:
       - PORT=3001
     depends_on:
       - pg
+    networks:
+      - chat_bot_network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -52,3 +58,9 @@ services:
       - "5050:80"
     depends_on:
       - pg
+    networks:
+      - chat_bot_network
+
+networks:
+  chat_bot_network:
+    driver: bridge
