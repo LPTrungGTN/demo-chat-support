@@ -19,10 +19,10 @@ export class AuthController {
 
   @Post('/logout')
   public async logout(
-    @Body('username') username: string,
+    @Body('token') token: string,
     @Res() res: Response,
   ): Promise<Response> {
-    await this.service.logout(username);
+    await this.service.logout(token);
     return res.status(HttpStatus.OK).json();
   }
 }

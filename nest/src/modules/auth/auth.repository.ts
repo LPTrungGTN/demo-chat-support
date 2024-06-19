@@ -16,10 +16,10 @@ export class AuthRepository {
     });
   }
 
-  public async findStaffByUsername(username: string): Promise<Staff> {
+  public async findById(id: number): Promise<Staff> {
     return this.prisma.staff.findFirst({
       where: {
-        username,
+        id,
       },
     });
   }

@@ -26,8 +26,8 @@ export class AuthService {
     return user.id;
   }
 
-  public async logout(username: string): Promise<void> {
-    const user = await this.repository.findStaffByUsername(username);
+  public async logout(token: string): Promise<void> {
+    const user = await this.repository.findById(Number(token));
 
     if (!user) throw new BadRequestException('Invalid credentials');
 

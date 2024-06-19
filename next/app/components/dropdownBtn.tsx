@@ -4,11 +4,18 @@ import Cookies from 'js-cookie';
 import React from 'react';
 import { toast } from 'react-toastify';
 
+import { logout } from '../api/authenticate';
+
 const DropDownButton = () => {
-  const clearSession = () => {
-    Cookies.remove('accessToken');
-    if (typeof window !== 'undefined') {
-      window.location.assign('/login');
+  const clearSession = async () => {
+    try {
+      await logout(Cookies.get('accessToken')!);
+      Cookies.remove('accessToken');
+      if (typeof window !== 'undefined') {
+        window.location.assign('/login');
+      }
+    } catch (error) {
+      toast.error('Failed to logout');
     }
   };
 

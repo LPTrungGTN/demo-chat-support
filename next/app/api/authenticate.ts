@@ -17,3 +17,7 @@ export const login = async (
   console.log('response: ', response);
   return response.data;
 };
+
+export const logout = async (token: string): Promise<void> => {
+  await axios.post(`${BASE_URL}/auth/logout`, { token });
+};
