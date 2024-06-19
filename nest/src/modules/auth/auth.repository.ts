@@ -15,4 +15,12 @@ export class AuthRepository {
       },
     });
   }
+
+  public async findStaffByUsername(username: string): Promise<Staff> {
+    return this.prisma.staff.findFirst({
+      where: {
+        username,
+      },
+    });
+  }
 }

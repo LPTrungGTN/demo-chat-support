@@ -7,11 +7,13 @@ import { LoginRequestDto } from './dto/login.request.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly ACTIVE_STATUS = 1;
+  private readonly INACTIVE_STATUS = 0;
+
   constructor(
     private readonly repository: AuthRepository,
     private readonly staffStatusRepository: StaffStatusRepository,
   ) {}
-  active = 1;
 
   public async login(request: LoginRequestDto): Promise<number> {
     const { password, username } = request;
@@ -19,8 +21,16 @@ export class AuthService {
 
     if (!user) throw new BadRequestException('Invalid credentials');
 
-    await this.staffStatusRepository.upsert(user.id, this.active);
+    await this.staffStatusRepository.upsert(user.id, this.ACTIVE_STATUS);
 
     return user.id;
+  }
+
+  public async logout(username: string): Promise<void> {
+    const user = await this.repository.findStaffByUsername(username);
+
+    if (!user) throw new BadRequestException('Invalid credentials');
+
+    await this.staffStatusRepository.upsert(user.id, this.INACTIVE_STATUS);
   }
 }
