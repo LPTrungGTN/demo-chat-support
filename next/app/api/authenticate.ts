@@ -1,4 +1,4 @@
-import axios from "@/app/api/axiosInstance";
+import axios from 'axios';
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -21,7 +21,7 @@ interface LoginResponse {
 
 export const login = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<LoginResponse> => {
   const response = await axios.post<LoginResponse>(`${BASE_URL}/auth/login`, {
     email,
