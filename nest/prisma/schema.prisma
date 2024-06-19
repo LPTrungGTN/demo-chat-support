@@ -15,7 +15,7 @@ datasource db {
 
 model Staff {
     id        Int      @id
-    username  String
+    username  String   @unique
     password  String
     createdAt DateTime @default(now()) @map("created_at")
 
