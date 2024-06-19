@@ -1,8 +1,8 @@
 FROM node:22-alpine AS base
 
-WORKDIR /usr/src/app
+WORKDIR /frontend
 
-COPY ../next/ /usr/src/app
+COPY ../next/ /frontend
 
 EXPOSE 3000
 

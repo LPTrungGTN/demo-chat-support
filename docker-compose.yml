@@ -7,14 +7,13 @@ services:
       context: .
       dockerfile: next/Dockerfile
     volumes:
-      - ./next:/usr/src/app
+      - ./next:/frontend
     ports:
       - 3000:3000
     tty: true
     stdin_open: true
     environment:
       - CHOKIDAR_USEPOLLING=true
-    working_dir: /usr/src/app
     networks:
       - chat_bot_network
 
