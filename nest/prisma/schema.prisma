@@ -5,86 +5,87 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model Staff {
-  id                     Int                      @id
-  username               String
-  password               String
-  createdAt              DateTime                 @default(now()) @map("created_at")
+    id        Int      @id
+    username  String
+    password  String
+    createdAt DateTime @default(now()) @map("created_at")
 
-  staffStatus            StaffStatus?
-  staffCategorys         StaffCategory[]
-  chatRooms              ChatRoom[]
-  messages               Message[]
+    staffStatus    StaffStatus?
+    staffCategorys StaffCategory[]
+    chatRooms      ChatRoom[]
+    messages       Message[]
 
-  @@map("staffs")
+    @@map("staffs")
 }
 
 model StaffStatus {
-  staffId               Int                      @id @map("staff_id")
-  maxActiveChats        Int                      @map("max_active_chats")
-  currentActiveChats    Int                      @map("current_active_chats")
-  updatedAt             DateTime                 @updatedAt @map("updated_at")
+    staffId            Int      @id @map("staff_id")
+    maxActiveChats     Int      @map("max_active_chats")
+    currentActiveChats Int      @map("current_active_chats")
+    status             Int      @default(0)
+    updatedAt          DateTime @updatedAt @map("updated_at")
 
-  staffs                Staff                    @relation(fields: [staffId], onDelete: Cascade, references: [id])
+    staffs Staff @relation(fields: [staffId], onDelete: Cascade, references: [id])
 
-  @@map("staffStatus")
+    @@map("staffStatus")
 }
 
 model Category {
-  id                    Int                      @id
-  name                  String
-  description           String
+    id          Int    @id
+    name        String
+    description String
 
-  staffCategorys        StaffCategory[]
-  chatRooms             ChatRoom[]
+    staffCategorys StaffCategory[]
+    chatRooms      ChatRoom[]
 
-  @@map("categories")
+    @@map("categories")
 }
 
 model StaffCategory {
-  staffId               Int                      @map("staff_id")
-  categoryId            Int                      @map("category_id")
+    staffId    Int @map("staff_id")
+    categoryId Int @map("category_id")
 
-  staff                 Staff                    @relation(fields: [staffId], references: [id])
-  category              Category                 @relation(fields: [categoryId], references: [id])
+    staff    Staff    @relation(fields: [staffId], references: [id])
+    category Category @relation(fields: [categoryId], references: [id])
 
-  @@id([staffId, categoryId])
-  @@map("staffCategory")
+    @@id([staffId, categoryId])
+    @@map("staffCategory")
 }
 
 model ChatRoom {
-  id                    Int                      @id
-  staffId               Int                      @map("staff_id")
-  categoryId            Int                      @map("category_id")
-  language              String
-  status                String
-  rating                Int
-  createdAt             DateTime                 @default(now()) @map("created_at")
+    id         Int      @id
+    staffId    Int      @map("staff_id")
+    categoryId Int      @map("category_id")
+    language   String
+    status     String
+    rating     Int
+    createdAt  DateTime @default(now()) @map("created_at")
 
-  messages              Message[]
-  staffs                Staff                    @relation(fields: [staffId], references: [id])
-  categories            Category                 @relation(fields: [categoryId], references: [id])
+    messages   Message[]
+    staffs     Staff     @relation(fields: [staffId], references: [id])
+    categories Category  @relation(fields: [categoryId], references: [id])
 
-  @@map("chatRooms")
+    @@map("chatRooms")
 }
 
 model Message {
-  id                    Int                      @id
-  content               String
-  staffId               Int                      @map("staff_id")
-  chatRoomId            Int                      @map("chat_room_id")
-  createdAt             DateTime                 @default(now()) @map("created_at")
+    id         Int      @id
+    content    String
+    staffId    Int      @map("staff_id")
+    chatRoomId Int      @map("chat_room_id")
+    createdAt  DateTime @default(now()) @map("created_at")
 
-  staffs                Staff?                   @relation(fields: [staffId], references: [id])
-  chatRooms             ChatRoom                 @relation(fields: [chatRoomId], references: [id])
+    staffs    Staff?   @relation(fields: [staffId], references: [id])
+    chatRooms ChatRoom @relation(fields: [chatRoomId], references: [id])
 
-  @@map("messages")
+    @@map("messages")
 }
