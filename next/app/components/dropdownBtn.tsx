@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 const DropDownButton = () => {
   const clearSession = () => {
     Cookies.remove('accessToken');
-    Cookies.remove('user');
     if (typeof window !== 'undefined') {
       window.location.assign('/login');
     }
