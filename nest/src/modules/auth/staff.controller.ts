@@ -1,12 +1,12 @@
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
-import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/login.request.dto';
+import { StaffService } from './staff.service';
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly service: AuthService) {}
+@Controller()
+export class StaffController {
+  constructor(private readonly service: StaffService) {}
 
   @Post('/login')
   public async store(

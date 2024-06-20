@@ -4,7 +4,7 @@ import { Staff } from '@prisma/client';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
 @Injectable()
-export class AuthRepository {
+export class StaffRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   public async findStaff(password: string, username: string): Promise<Staff> {

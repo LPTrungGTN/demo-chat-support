@@ -2,16 +2,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
-import { AuthRepository } from './auth.repository';
 import { LoginRequestDto } from './dto/login.request.dto';
+import { StaffRepository } from './staff.repository';
 
 @Injectable()
-export class AuthService {
+export class StaffService {
   private readonly ACTIVE_STATUS = 1;
   private readonly INACTIVE_STATUS = 0;
 
   constructor(
-    private readonly repository: AuthRepository,
+    private readonly repository: StaffRepository,
     private readonly staffStatusRepository: StaffStatusRepository,
   ) {}
 

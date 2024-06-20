@@ -10,7 +10,7 @@ export const login = async (
   password: string,
   username: string,
 ): Promise<LoginResponse> => {
-  const response = await axios.post<LoginResponse>(`${BASE_URL}/auth/login`, {
+  const response = await axios.post<LoginResponse>(`${BASE_URL}/login`, {
     password,
     username,
   });
@@ -19,5 +19,5 @@ export const login = async (
 };
 
 export const logout = async (token: string): Promise<void> => {
-  await axios.post(`${BASE_URL}/auth/logout`, { token });
+  await axios.post(`${BASE_URL}/logout`, { token });
 };
