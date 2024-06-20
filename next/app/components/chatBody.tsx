@@ -21,7 +21,7 @@ const ChatBody = () => {
   }, []);
 
   return (
-    <div className='chat-body p-4 flex-1 overflow-y-scroll'>
+    <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) =>
         msg.userId === accessToken ? (
           <MyMessageComponent msg={msg.content} />
