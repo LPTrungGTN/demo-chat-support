@@ -1,12 +1,14 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import Cookies from 'js-cookie';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { logout } from '../api/authenticate';
 
 const DropDownButton = () => {
+  const [username, setUsername] = useState('');
+
   const clearSession = async () => {
     try {
       if (Cookies.get('accessToken') !== 'customer') {
@@ -32,6 +34,10 @@ const DropDownButton = () => {
       toast.error(error.data.message.error);
     }
   };
+  useEffect(() => {
+    const username = Cookies.get('username');
+    setUsername(username || '');
+  });
 
   return (
     <div className='relative lg:ml-auto inline-block text-left'>
@@ -43,7 +49,7 @@ const DropDownButton = () => {
           aria-expanded='true'
           aria-haspopup='true'
         >
-          <h1 className='flex'>Hello guys</h1>
+          <h1 className='flex'>Hello {username || 'guy'}</h1>
           <svg
             className='-mr-1 h-5 w-5 text-gray-400'
             viewBox='0 0 20 20'

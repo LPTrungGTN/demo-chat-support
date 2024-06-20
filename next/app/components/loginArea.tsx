@@ -35,14 +35,17 @@ const FormLogin = () => {
     }
   };
 
-  const setLoginCookies = (accessToken: string) => {
+  const setLoginCookies = (accessToken: string, username?: string) => {
     Cookies.set('accessToken', accessToken);
+    if (username) {
+      Cookies.set('username', username);
+    }
   };
 
   const Login = async () => {
     try {
       const response = await login(password, username);
-      setLoginCookies(response.accessToken);
+      setLoginCookies(response.accessToken, username);
       redirectTo('/admin');
     } catch (error: any) {
       displayError(error);
