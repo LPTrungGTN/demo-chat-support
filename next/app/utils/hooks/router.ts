@@ -1,25 +1,25 @@
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 function useNavigateWithQuery() {
   const router = useRouter();
 
   return function navigateWithQuery({
-    pathname,
-    userId,
     from,
-    to,
     page,
+    pathname,
+    to,
     tz,
+    userId,
   }: {
-    pathname: string;
-    userId: number;
     from: string;
-    to: string;
     page: number;
+    pathname: string;
+    to: string;
     tz: number;
+    userId: number;
   }) {
     router.push(
-      `${pathname}/?userId=${userId}&from=${from}&to=${to}&page=${page}&tz=${tz}`
+      `${pathname}/?userId=${userId}&from=${from}&to=${to}&page=${page}&tz=${tz}`,
     );
   };
 }
