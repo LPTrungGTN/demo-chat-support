@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
@@ -20,7 +20,7 @@ export class AuthService {
 
     const user = await this.repository.findStaff(password, username);
 
-    if (!user) throw new BadRequestException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
     await this.staffStatusRepository.upsert(user.id, this.ACTIVE_STATUS);
 
@@ -30,7 +30,7 @@ export class AuthService {
   public async logout(token: string): Promise<void> {
     const user = await this.repository.findById(Number(token));
 
-    if (!user) throw new BadRequestException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
     await this.staffStatusRepository.upsert(user.id, this.INACTIVE_STATUS);
   }
