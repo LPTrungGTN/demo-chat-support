@@ -10,7 +10,7 @@ import Button from '@/app/components/button';
 import FormInput from '@/app/components/formInput';
 
 const FormLogin = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const FormLogin = () => {
   }, []);
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+    setUsername(event.target.value);
   };
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +41,7 @@ const FormLogin = () => {
 
   const Login = async () => {
     try {
-      const response = await login(email, password);
+      const response = await login(password, username);
       setLoginCookies(response.accessToken);
       redirectTo('/admin');
     } catch (error: any) {
@@ -66,7 +66,7 @@ const FormLogin = () => {
         <FormInput
           label='Email:'
           type='email'
-          value={email}
+          value={username}
           onChange={handleUsernameChange}
         />
         <FormInput
