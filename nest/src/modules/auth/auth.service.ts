@@ -17,7 +17,8 @@ export class AuthService {
 
   public async login(request: LoginRequestDto): Promise<number> {
     const { password, username } = request;
-    const user = await this.repository.findStaff(username, password);
+
+    const user = await this.repository.findStaff(password, username);
 
     if (!user) throw new BadRequestException('Invalid credentials');
 

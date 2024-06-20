@@ -7,7 +7,7 @@ import { PrismaService } from '@/modules/prisma/prisma.service';
 export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async findStaff(username: string, password: string): Promise<Staff> {
+  public async findStaff(password: string, username: string): Promise<Staff> {
     return this.prisma.staff.findFirst({
       where: {
         password,
