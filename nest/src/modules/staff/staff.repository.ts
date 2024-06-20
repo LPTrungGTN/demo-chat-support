@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Staff } from '@prisma/client';
+import { Staff, StaffCategory, StaffStatus } from '@prisma/client';
 
+import { StaffStatus as StaffStatusEnum } from '@/common/enums/staffStatus';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
 @Injectable()
@@ -24,23 +25,29 @@ export class StaffRepository {
     });
   }
 
-  public async findStaffById(id: number, categoryId: number): Promise<Staff> {
+  public async findActiveStaffByCategory(categoryId: number): Promise<
+    Staff & {
+      staffCategorys: StaffCategory[];
+      staffStatus?: StaffStatus;
+    }
+  > {
     return this.prisma.staff.findFirst({
       include: {
         staffCategorys: {
           where: {
-            categoryId,
+            categoryId: categoryId,
           },
         },
-        staffStatus: {
-          where: {
-            status: 1,
-          },
-        },
+        staffStatus: true,
       },
-
       where: {
-        id,
+        staffStatus: {
+          currentActiveChats: {
+            lt: this.prisma.staffStatus.fields.maxActiveChats,
+          },
+
+          status: StaffStatusEnum.ACTIVE,
+        },
       },
     });
   }
