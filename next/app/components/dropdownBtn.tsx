@@ -9,7 +9,10 @@ import { logout } from '../api/authenticate';
 const DropDownButton = () => {
   const clearSession = async () => {
     try {
-      await logout(Cookies.get('accessToken')!);
+      if (Cookies.get('accessToken') !== 'customer') {
+        await logout(Cookies.get('accessToken')!);
+      }
+
       Cookies.remove('accessToken');
       if (typeof window !== 'undefined') {
         window.location.assign('/login');
