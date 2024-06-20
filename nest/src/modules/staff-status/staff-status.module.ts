@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 
 import { StaffStatusRepository } from './staff-status.repository';
-import { StaffStatusService } from './staff-status.service';
 
 @Module({
-  exports: [StaffStatusService, StaffStatusRepository],
-  providers: [StaffStatusService, StaffStatusRepository],
+  exports: [StaffStatusRepository],
+  providers: [StaffStatusRepository],
 })
 export class StaffStatusModule {}

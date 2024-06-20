@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
+import { StaffStatus } from '@/common/enums/staffStatus';
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
 import { LoginRequestDto } from './dto/login.request.dto';
@@ -7,9 +8,6 @@ import { StaffRepository } from './staff.repository';
 
 @Injectable()
 export class StaffService {
-  private readonly ACTIVE_STATUS = 1;
-  private readonly INACTIVE_STATUS = 0;
-
   constructor(
     private readonly repository: StaffRepository,
     private readonly staffStatusRepository: StaffStatusRepository,
@@ -22,7 +20,7 @@ export class StaffService {
 
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    await this.staffStatusRepository.upsert(user.id, this.ACTIVE_STATUS);
+    await this.staffStatusRepository.upsert(user.id, StaffStatus.ACTIVE);
 
     return user.id;
   }
@@ -32,6 +30,6 @@ export class StaffService {
 
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    await this.staffStatusRepository.upsert(user.id, this.INACTIVE_STATUS);
+    await this.staffStatusRepository.upsert(user.id, StaffStatus.INACTIVE);
   }
 }
