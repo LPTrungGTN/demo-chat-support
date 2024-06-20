@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import createSocket from '@/app/utils/hooks/useSocket';
 
-const Contacts = () => {
+const Contact = () => {
   const socket = createSocket('chat');
 
   const [contacts, setContacts] = useState<
@@ -55,4 +55,4 @@ const Contacts = () => {
   );
 };
 
-export default Contacts;
+export default Contact;
