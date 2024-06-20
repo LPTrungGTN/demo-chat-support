@@ -1,9 +1,8 @@
-/* eslint-disable sort-keys-custom-order/object-keys */
 export const Language = {
+  CHINESE: 'zh',
   ENGLISH: 'en',
   JAPANESE: 'ja',
-  VIETNAMESE: 'vi',
-  CHINESE: 'zh',
   KOREAN: 'ko',
+  VIETNAMESE: 'vi',
 } as const;
 export type Language = (typeof Language)[keyof typeof Language];
