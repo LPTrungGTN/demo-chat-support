@@ -1,13 +1,26 @@
 'use client';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Cookies from 'js-cookie';
 import { ChangeEvent, useState } from 'react';
 
-const ChatFooter = () => {
-  const [msg, setMsg] = useState('');
+import { ChatFooterProps } from '@/app/utils/hooks/useSocket';
 
-  const handleInputMsg = (event: ChangeEvent<HTMLInputElement>) => {
-    setMsg(event.target.value);
+const ChatFooter = ({ socket }: ChatFooterProps) => {
+  const [message, setMessage] = useState('');
+  const [roomId, setRoomId] = useState<string>('');
+
+  const handleInputMessage = (event: ChangeEvent<HTMLInputElement>) => {
+    setMessage(event.target.value);
+  };
+
+  const handleSendMessage = () => {
+    const roomIdCookies = Cookies.get('roomId');
+    if (roomIdCookies) {
+      setRoomId(roomIdCookies);
+    }
+
+    if (socket) socket.emit('sendMessage', { language: 'en', message, roomId });
   };
 
   return (
@@ -50,8 +63,8 @@ const ChatFooter = () => {
             <input
               className='rounded-full py-2 pl-3 pr-10 w-full border border-gray-800 focus:border-gray-700 bg-gray-800 focus:bg-gray-900 focus:outline-none text-gray-200 focus:shadow-md transition duration-300 ease-in'
               type='text'
-              value={msg}
-              onChange={handleInputMsg}
+              value={message}
+              onChange={handleInputMessage}
               placeholder='Aa'
             />
             <button
@@ -66,10 +79,11 @@ const ChatFooter = () => {
         </div>
         <button
           type='button'
+          onClick={handleSendMessage}
           className='flex flex-shrink-0 focus:outline-none mx-2 block text-blue-600 hover:text-blue-700 w-6 h-6'
         >
           <svg viewBox='0 0 20 20' className='w-full h-full fill-current'>
-            <path d='M11.0010436,0 C9.89589787,0 9.00000024,0.886706352 9.0000002,1.99810135 L9,8 L1.9973917,8 C0.894262725,8 0,8.88772964 0,10 L0,12 L2.29663334,18.1243554 C2.68509206,19.1602453 3.90195042,20 5.00853025,20 L12.9914698,20 C14.1007504,20 15,19.1125667 15,18.000385 L15,10 L12,3 L12,0 L11.0010436,0 L11.0010436,0 Z M17,10 L20,10 L20,20 L17,20 L17,10 L17,10 Z' />
+            <path d='M2,21L23,12L2,3V10L17,12L2,14V21Z' />
           </svg>
         </button>
       </div>

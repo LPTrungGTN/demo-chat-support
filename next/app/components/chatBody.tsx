@@ -6,11 +6,9 @@ import { useEffect, useState } from 'react';
 
 import MyMessageComponent from '@/app/components/myMessageComponent';
 import OtherMessageComponent from '@/app/components/otherMessageComponent';
-import createSocket from '@/app/utils/hooks/useSocket';
+import { ChatFooterProps } from '@/app/utils/hooks/useSocket';
 
-const ChatBody = () => {
-  const socket = createSocket('chat');
-
+const ChatBody = ({ socket }: ChatFooterProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
   const [roomId, setRoomId] = useState<string>('');
   const [messages, setMessages] = useState<
@@ -18,26 +16,24 @@ const ChatBody = () => {
   >([]);
 
   useEffect(() => {
-    if (socket) {
-      socket.on('newMessage', (data) => {
-        setMessages((prev) => [...prev, data]);
-      });
+    socket.on('newMessage', (data) => {
+      setMessages((prev) => [...prev, data]);
+    });
 
-      socket.on('roomCreated', (data) => {
-        const { id: roomId } = data;
-        setRoomId(roomId);
-        Cookies.set('roomId', roomId);
-      });
+    socket.on('roomCreated', (data) => {
+      const { id: roomId } = data;
+      setRoomId(roomId);
+      Cookies.set('roomId', roomId);
+    });
 
-      socket.on('staffJoined', (data) => {
-        console.log('Staff joined:', data);
-      });
+    socket.on('staffJoined', (data) => {
+      console.log('Staff joined:', data);
+    });
 
-      socket.on('error', (data) => {
-        console.error(data.message);
-      });
-    }
-  }, [socket]);
+    socket.on('error', (data) => {
+      console.error(data.message);
+    });
+  }, []);
 
   useEffect(() => {
     const accessToken = Cookies.get('accessToken');
@@ -62,7 +58,9 @@ const ChatBody = () => {
   }, []);
 
   const handleCreateRoom = () => {
-    socket.emit('createRoom', { categoryId: 6, language: 'en' });
+    if (socket) {
+      socket.emit('createRoom', { categoryId: 6, language: 'en' });
+    }
   };
 
   return (
