@@ -79,9 +79,10 @@ export class AppGateway
   @SubscribeMessage('sendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { message: string; roomId: string; userId: string },
+    @MessageBody() data: { message: string; roomId: string },
   ) {
-    const { message, roomId, userId } = data;
+    const timestamp = new Date().toISOString();
+    const { message, roomId } = data;
     if (message === 'staff') {
       const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
         Number(roomId),
@@ -104,17 +105,19 @@ export class AppGateway
       }
 
       await this.chatRoomRepository.assignStaffToRoom(staff.id, chatRoom.id);
-      this.io
-        .to(staff.staffStatus.clientId)
-        .emit('newCustomer', { roomId: chatRoom.id });
+      this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
+        message: message,
+        roomId: chatRoom.id,
+        status: true,
+        timestamp,
+      });
     }
+    console.log('start send msg comeback');
 
-    const timestamp = new Date().toISOString();
     this.io.to(roomId).emit('newMessage', {
       message: message,
       sender: client.id,
       timestamp,
-      userId: userId,
     });
   }
 }
