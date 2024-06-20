@@ -1,6 +1,9 @@
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -9,12 +12,18 @@ import { Server, Socket } from 'socket.io';
 
 import { Language } from '@/common/enums/language';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
+import { StaffRepository } from '@/modules/staff/staff.repository';
 
-@WebSocketGateway({ cors: true, namespace: '/chat' })
-export class AppGateway {
-  constructor(private readonly chatRoomRepository: ChatRoomRepository) {}
+@WebSocketGateway({ cors: true, namespace: '/chat', port: 3001 })
+export class AppGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  constructor(
+    private readonly chatRoomRepository: ChatRoomRepository,
+    private readonly staffRepository: StaffRepository,
+  ) {}
 
-  @WebSocketServer() server: Server;
+  @WebSocketServer() io: Server;
 
   afterInit() {
     console.log('Initialized socket server');
@@ -29,7 +38,7 @@ export class AppGateway {
   }
 
   sendMessage(message: string): void {
-    this.server.emit('message', message);
+    this.io.emit('message', message);
   }
 
   @SubscribeMessage('createRoom')
@@ -40,7 +49,7 @@ export class AppGateway {
     const chatRoom = await this.chatRoomRepository.create(data);
     const { id } = chatRoom;
     client.join(String(id));
-    this.server.to(client.id).emit('roomCreated', { id });
+    this.io.to(client.id).emit('roomCreated', { id });
   }
 
   @SubscribeMessage('joinRoom')
@@ -54,13 +63,13 @@ export class AppGateway {
     );
 
     if (!chatRoom) {
-      return this.server.to(client.id).emit('error', {
+      return this.io.to(client.id).emit('error', {
         message: 'Chat room not found or you do not have permission to join.',
       });
     }
 
     client.join(roomId);
-    this.server.to(roomId).emit('staffJoined', { roomId, staffId });
+    this.io.to(roomId).emit('staffJoined', { roomId, staffId });
     await this.chatRoomRepository.assignStaffToRoom(
       Number(staffId),
       Number(roomId),
@@ -68,12 +77,44 @@ export class AppGateway {
   }
 
   @SubscribeMessage('sendMessage')
-  handleMessage(
+  async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { message: string; roomId: string },
+    @MessageBody() data: { message: string; roomId: string; userId: string },
   ) {
-    this.server
-      .to(data.roomId)
-      .emit('newMessage', { message: data.message, sender: client.id });
+    const { message, roomId, userId } = data;
+    if (message === 'staff') {
+      const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
+        Number(roomId),
+      );
+
+      if (!chatRoom) {
+        return this.io.to(client.id).emit('error', {
+          message: 'Chat room not found or you do not have permission to join.',
+        });
+      }
+
+      const staff = await this.staffRepository.findActiveStaffByCategory(
+        chatRoom.categoryId,
+      );
+
+      if (!staff || staff.staffCategorys.length === 0 || !staff.staffStatus) {
+        return this.io.to(client.id).emit('error', {
+          message: 'No staff available to join the chat room.',
+        });
+      }
+
+      await this.chatRoomRepository.assignStaffToRoom(staff.id, chatRoom.id);
+      this.io
+        .to(staff.staffStatus.clientId)
+        .emit('newCustomer', { roomId: chatRoom.id });
+    }
+
+    const timestamp = new Date().toISOString();
+    this.io.to(roomId).emit('newMessage', {
+      message: message,
+      sender: client.id,
+      timestamp,
+      userId: userId,
+    });
   }
 }
