@@ -4,7 +4,6 @@ export const displayError = (error: any) => {
   const {
     response: { data: message, status },
   } = error;
-  console.log(error);
   switch (status) {
     case 404:
       return toast.error('Not found');
