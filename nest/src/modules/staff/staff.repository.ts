@@ -41,6 +41,11 @@ export class StaffRepository {
         staffStatus: true,
       },
       where: {
+        staffCategorys: {
+          some: {
+            categoryId,
+          },
+        },
         staffStatus: {
           currentActiveChats: {
             lt: this.prisma.staffStatus.fields.maxActiveChats,
