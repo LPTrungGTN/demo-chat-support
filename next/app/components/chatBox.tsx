@@ -1,12 +1,12 @@
 'use client';
 
-import createSocket, { SocketProps } from '@/app/utils/hooks/useSocket';
+import { SocketProps } from '@/app/utils/hooks/useSocket';
 
 import ChatBody from './chatBody';
 import ChatFooter from './chatFooter';
 import ChatHeader from './chatHeader';
 
-const ChatBox = ({ socket = createSocket('chat') }: SocketProps) => {
+const ChatBox = ({ socket }: SocketProps) => {
   return (
     <section className='flex flex-col flex-auto border-l border-gray-800'>
       <ChatHeader />
