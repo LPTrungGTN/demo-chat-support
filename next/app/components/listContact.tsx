@@ -1,6 +1,7 @@
 'use client';
 
-import { SocketProps } from '../utils/hooks/useSocket';
+import { SocketProps } from '@/app/utils/hooks/useSocket';
+
 import Contact from './contact';
 
 const ListContact = ({ socket }: SocketProps) => {
