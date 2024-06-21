@@ -54,7 +54,7 @@ const FormLogin = () => {
 
   const LoginChat = async () => {
     setLoginCookies('customer');
-    redirectTo('/user');
+    redirectTo('/admin');
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
