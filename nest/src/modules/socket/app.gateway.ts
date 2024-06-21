@@ -13,6 +13,7 @@ import { Server, Socket } from 'socket.io';
 import { Language } from '@/common/enums/language';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
+import { MessageRepository } from '@/modules/message/message.repository';
 import { StaffRepository } from '@/modules/staff/staff.repository';
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
@@ -24,6 +25,7 @@ export class AppGateway
     private readonly chatRoomRepository: ChatRoomRepository,
     private readonly staffRepository: StaffRepository,
     private readonly staffStatusRepository: StaffStatusRepository,
+    private readonly messageRepository: MessageRepository,
   ) {}
 
   @WebSocketServer() io: Server;
@@ -86,10 +88,12 @@ export class AppGateway
   ) {
     const timestamp = new Date().toISOString();
     const { message, roomId } = data;
+    console.log('start handler msg', message, roomId);
     if (message === 'staff') {
       const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
         Number(roomId),
       );
+      console.log('chatRoom', chatRoom);
 
       if (!chatRoom) {
         return this.io.to(client.id).emit('error', {
@@ -115,12 +119,16 @@ export class AppGateway
         timestamp,
       });
     }
-    console.log('start send msg comeback');
 
     this.io.to(roomId).emit('newMessage', {
-      message: message,
-      sender: client.id,
-      timestamp,
+      content: message,
+      createdAt: timestamp,
+      staffId: client.id,
+    });
+
+    await this.messageRepository.create({
+      chatRoomId: Number(roomId),
+      content: message,
     });
   }
 
@@ -129,12 +137,14 @@ export class AppGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { staffId: string },
   ) {
+    console.log('staffActive', data.staffId);
     try {
-      await this.staffStatusRepository.upsert(
+      const result = await this.staffStatusRepository.upsert(
         Number(data.staffId),
         StaffStatus.ACTIVE,
         client.id,
       );
+      console.log('result', result);
     } catch (error) {
       this.io.to(client.id).emit('error', {
         message: 'Server error. Please try again later.',
