@@ -2,7 +2,7 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import Cookies from 'js-cookie';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useState } from 'react';
 
 import { SocketProps } from '@/app/utils/hooks/useSocket';
 
@@ -21,6 +21,13 @@ const ChatFooter = ({ socket }: SocketProps) => {
     }
 
     if (socket) socket.emit('sendMessage', { language: 'en', message, roomId });
+    setMessage('');
+  };
+
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && message.trim() !== '') {
+      handleSendMessage();
+    }
   };
 
   return (
@@ -65,6 +72,7 @@ const ChatFooter = ({ socket }: SocketProps) => {
               type='text'
               value={message}
               onChange={handleInputMessage}
+              onKeyDown={handleKeyPress}
               placeholder='Aa'
             />
             <button
