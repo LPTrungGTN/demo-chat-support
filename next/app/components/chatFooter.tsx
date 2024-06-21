@@ -4,9 +4,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import Cookies from 'js-cookie';
 import { ChangeEvent, useState } from 'react';
 
-import { ChatFooterProps } from '@/app/utils/hooks/useSocket';
+import { SocketProps } from '@/app/utils/hooks/useSocket';
 
-const ChatFooter = ({ socket }: ChatFooterProps) => {
+const ChatFooter = ({ socket }: SocketProps) => {
   const [message, setMessage] = useState('');
   const [roomId, setRoomId] = useState<string>('');
 

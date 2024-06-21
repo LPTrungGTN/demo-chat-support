@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 
 import MyMessageComponent from '@/app/components/myMessageComponent';
 import OtherMessageComponent from '@/app/components/otherMessageComponent';
-import { ChatFooterProps } from '@/app/utils/hooks/useSocket';
+import { SocketProps } from '@/app/utils/hooks/useSocket';
 
-const ChatBody = ({ socket }: ChatFooterProps) => {
+const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
   const [roomId, setRoomId] = useState<string>('');
   const [messages, setMessages] = useState<

@@ -1,8 +1,9 @@
 'use client';
 
+import { SocketProps } from '../utils/hooks/useSocket';
 import Contact from './contact';
 
-const ListContact = () => {
+const ListContact = ({ socket }: SocketProps) => {
   return (
     <section className='flex flex-col flex-none overflow-auto w-24 group lg:max-w-sm md:w-2/5 transition-all duration-300 ease-in-out'>
       <div className='header p-4 flex flex-row justify-between items-center flex-none'>
@@ -28,7 +29,7 @@ const ListContact = () => {
           </svg>
         </a>
       </div>
-      <Contact />
+      <Contact socket={socket} />
     </section>
   );
 };

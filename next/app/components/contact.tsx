@@ -3,11 +3,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { useEffect, useState } from 'react';
 
-import createSocket from '@/app/utils/hooks/useSocket';
+import { SocketProps } from '@/app/utils/hooks/useSocket';
 
-const Contact = () => {
-  const socket = createSocket('chat');
-
+const Contact = ({ socket }: SocketProps) => {
   const [contacts, setContacts] = useState<
     { message: string; roomId: string; status: boolean; timestamp: string }[]
   >([]);
