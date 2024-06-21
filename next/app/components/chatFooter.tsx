@@ -25,7 +25,8 @@ const ChatFooter = ({ socket }: SocketProps) => {
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && message.trim() !== '') {
+    const checkMessage = message;
+    if (event.key === 'Enter' && checkMessage.trim() !== '') {
       handleSendMessage();
     }
   };
