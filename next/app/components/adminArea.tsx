@@ -14,7 +14,9 @@ const AdminArea = () => {
   const socket = createSocket('chat');
 
   useEffect(() => {
-    socket.emit('staffActive', { staffId: Cookies.get('accessToken') });
+    const accessToken = Cookies.get('accessToken');
+    if (!accessToken || accessToken === 'customer') return;
+    socket.emit('staffActive', { staffId: accessToken });
     socket.on('error', (data) => {
       toast.error(data.message);
     });
