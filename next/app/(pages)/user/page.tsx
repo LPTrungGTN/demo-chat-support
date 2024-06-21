@@ -2,7 +2,7 @@ import React from 'react';
 
 import UserPage from '@/app/components/userPage';
 
-const LoginPage = () => {
+const CustomerPage = () => {
   return (
     <div className='flex-1 flex flex-col'>
       <main className='flex-grow flex flex-row min-h-0'>
@@ -12,4 +12,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default CustomerPage;

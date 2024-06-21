@@ -5,7 +5,7 @@ import ChatBox from '@/app/components/chatBox';
 import ListContact from '@/app/components/listContact';
 import createSocket from '@/app/utils/hooks/useSocket';
 
-const LoginPage = () => {
+const AdminPage = () => {
   const socket = createSocket('chat');
   return (
     <div className='flex-1 flex flex-col'>
@@ -17,4 +17,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default AdminPage;
