@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 
+import { ChatProvider } from '@/app/contexts/chatContext';
 import createSocket from '@/app/utils/hooks/useSocket';
 
 import ChatBox from './chatBox';
@@ -19,10 +20,12 @@ const AdminArea = () => {
     });
   }, []);
   return (
-    <main className='flex-grow flex flex-row min-h-0'>
-      <ListContact socket={socket} />
-      <ChatBox socket={socket} />
-    </main>
+    <ChatProvider>
+      <main className='flex-grow flex flex-row min-h-0'>
+        <ListContact socket={socket} />
+        <ChatBox socket={socket} />
+      </main>
+    </ChatProvider>
   );
 };
 
