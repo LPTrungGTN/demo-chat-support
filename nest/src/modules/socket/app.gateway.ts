@@ -11,8 +11,10 @@ import {
 import { Server, Socket } from 'socket.io';
 
 import { Language } from '@/common/enums/language';
+import { StaffStatus } from '@/common/enums/staffStatus';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
 import { StaffRepository } from '@/modules/staff/staff.repository';
+import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
 @WebSocketGateway({ cors: true, namespace: '/chat', port: 3001 })
 export class AppGateway
@@ -21,6 +23,7 @@ export class AppGateway
   constructor(
     private readonly chatRoomRepository: ChatRoomRepository,
     private readonly staffRepository: StaffRepository,
+    private readonly staffStatusRepository: StaffStatusRepository,
   ) {}
 
   @WebSocketServer() io: Server;
@@ -119,5 +122,23 @@ export class AppGateway
       sender: client.id,
       timestamp,
     });
+  }
+
+  @SubscribeMessage('staffActive')
+  async handleStaffActive(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { staffId: string },
+  ) {
+    try {
+      await this.staffStatusRepository.upsert(
+        Number(data.staffId),
+        StaffStatus.ACTIVE,
+        client.id,
+      );
+    } catch (error) {
+      this.io.to(client.id).emit('error', {
+        message: 'Server error. Please try again later.',
+      });
+    }
   }
 }
