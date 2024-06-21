@@ -7,18 +7,17 @@ import { toast } from 'react-toastify';
 
 import MyMessageComponent from '@/app/components/myMessageComponent';
 import OtherMessageComponent from '@/app/components/otherMessageComponent';
+import { useChatContext } from '@/app/contexts/chatContext';
 import { SocketProps } from '@/app/utils/hooks/useSocket';
 
 const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
   const [roomId, setRoomId] = useState<string>('');
-  const [messages, setMessages] = useState<
-    { message: string; sender: string; timestamp: string; userId: string }[]
-  >([]);
 
+  const { messages, setMessages } = useChatContext();
   useEffect(() => {
     socket.on('newMessage', (data) => {
-      setMessages((prev) => [...prev, data]);
+      setMessages([...messages, data]);
     });
 
     socket.on('roomCreated', (data) => {
@@ -63,11 +62,12 @@ const ChatBody = ({ socket }: SocketProps) => {
   return (
     <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) => {
-        const { message, userId } = msg;
-        return userId === accessToken ? (
-          <MyMessageComponent msg={message} />
+        const { content, staffId } = msg;
+        const senderId = !staffId ? 'customer' : Number(staffId);
+        return senderId === accessToken ? (
+          <MyMessageComponent msg={content} />
         ) : (
-          <OtherMessageComponent msg={message} />
+          <OtherMessageComponent msg={content} />
         );
       })}
     </div>
