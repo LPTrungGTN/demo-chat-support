@@ -1,10 +1,48 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
+import { listByRoomId } from '@/app/api/message';
+import { useChatContext } from '@/app/contexts/chatContext';
 import { SocketProps } from '@/app/utils/hooks/useSocket';
 
 import Contact from './contact';
 
 const ListContact = ({ socket }: SocketProps) => {
+  const { setMessages } = useChatContext();
+  const [contacts, setContacts] = useState<
+    {
+      message: string;
+      roomId: string;
+      status: boolean;
+      timestamp: string;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('newCustomer', (data) => {
+        setContacts((prev) => [...prev, data]);
+      });
+
+      socket.on('staffJoined', (data) => {
+        console.log('Staff joined:', data);
+      });
+
+      socket.on('error', (data) => {
+        console.error(data.message);
+      });
+    }
+  }, [socket]);
+
+  const handleContactClick = async (roomId: string) => {
+    try {
+      const data = await listByRoomId(roomId);
+      setMessages(data.messages);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <section className='flex flex-col flex-none overflow-auto w-24 group lg:max-w-sm md:w-2/5 transition-all duration-300 ease-in-out'>
       <div className='header p-4 flex flex-row justify-between items-center flex-none'>
@@ -30,7 +68,15 @@ const ListContact = ({ socket }: SocketProps) => {
           </svg>
         </a>
       </div>
-      <Contact socket={socket} />
+      <div className='contacts p-2 flex-1 overflow-y-scroll'>
+        {contacts.map((contact) => (
+          <Contact
+            key={contact.roomId}
+            contact={contact}
+            onClick={handleContactClick}
+          />
+        ))}
+      </div>
     </section>
   );
 };
