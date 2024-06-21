@@ -20,8 +20,6 @@ export class StaffService {
 
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    await this.staffStatusRepository.upsert(user.id, StaffStatus.ACTIVE);
-
     return user.id;
   }
 
