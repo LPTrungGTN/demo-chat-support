@@ -3,6 +3,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import MyMessageComponent from '@/app/components/myMessageComponent';
 import OtherMessageComponent from '@/app/components/otherMessageComponent';
@@ -31,7 +32,7 @@ const ChatBody = ({ socket }: SocketProps) => {
     });
 
     socket.on('error', (data) => {
-      console.error(data.message);
+      toast.error(data.message);
     });
   }, []);
 
@@ -50,10 +51,6 @@ const ChatBody = ({ socket }: SocketProps) => {
 
     if (accessToken === 'customer' && !roomId) {
       handleCreateRoom();
-    } else if (accessToken !== 'customer') {
-      socket!.emit('joinRoom', { roomId: 5, staffId: 'customer' });
-    } else {
-      socket!.emit('joinRoom', { roomId, staffId: accessToken });
     }
   }, []);
 
