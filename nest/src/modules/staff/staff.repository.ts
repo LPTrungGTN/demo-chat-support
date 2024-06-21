@@ -50,7 +50,7 @@ export class StaffRepository {
           currentActiveChats: {
             lt: this.prisma.staffStatus.fields.maxActiveChats,
           },
-
+          NOT: { clientId: null },
           status: StaffStatusEnum.ACTIVE,
         },
       },
