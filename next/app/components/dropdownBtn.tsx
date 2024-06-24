@@ -1,17 +1,18 @@
 import 'react-toastify/dist/ReactToastify.css';
 
+import { logout } from '@api/authenticate';
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { logout } from '../api/authenticate';
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 
 const DropDownButton = () => {
   const [username, setUsername] = useState('');
 
   const clearSession = async () => {
     try {
-      if (Cookies.get('accessToken') !== 'customer') {
+      if (Cookies.get('accessToken') !== RoleEnum.USER) {
         await logout(Cookies.get('accessToken')!);
       }
 

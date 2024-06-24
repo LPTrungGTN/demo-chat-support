@@ -8,6 +8,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { login } from '@/app/api/authenticate';
 import Button from '@/app/components/button';
 import FormInput from '@/app/components/formInput';
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 
 const FormLogin = () => {
   const [username, setUsername] = useState('');
@@ -53,7 +54,7 @@ const FormLogin = () => {
   };
 
   const LoginChat = async () => {
-    setLoginCookies('customer');
+    setLoginCookies(RoleEnum.USER);
     redirectTo('/admin');
   };
 
