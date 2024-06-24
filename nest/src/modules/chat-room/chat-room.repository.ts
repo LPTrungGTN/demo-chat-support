@@ -31,4 +31,10 @@ export class ChatRoomRepository {
       where: { id },
     });
   }
+
+  public async listAllByStaffId(staffId: number | null): Promise<ChatRoom[]> {
+    return await this.prisma.chatRoom.findMany({
+      where: { staffId },
+    });
+  }
 }
