@@ -1,8 +1,0 @@
-export enum UpdateSourceEnum {
-  UPDATE_SOURCE_ORIGINAL = 1,
-  UPDATE_SOURCE_UPDATE = 2,
-
-  UPDATE_SOURCE_ORIGINAL_TEXT = "Original",
-  UPDATE_SOURCE_UPDATE_TEXT = "Edited",
-  UPDATE_SOURCE_OTHER_TEXT = "Other",
-}
