@@ -63,13 +63,14 @@ model StaffCategory {
 }
 
 model ChatRoom {
-    id         Int      @id @default(autoincrement())
-    staffId    Int?     @map("staff_id")
-    categoryId Int      @map("category_id")
+    id         Int       @id @default(autoincrement())
+    staffId    Int?      @map("staff_id")
+    categoryId Int       @map("category_id")
     language   String
-    status     String   @default("open")
+    status     String    @default("open")
     rating     Int?
-    createdAt  DateTime @default(now()) @map("created_at")
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime? @updatedAt @map("updated_at")
 
     messages   Message[]
     staffs     Staff?    @relation(fields: [staffId], references: [id])
@@ -79,11 +80,12 @@ model ChatRoom {
 }
 
 model Message {
-    id         Int      @id @default(autoincrement())
+    id         Int       @id @default(autoincrement())
     content    String
-    staffId    Int?     @map("staff_id")
-    chatRoomId Int      @map("chat_room_id")
-    createdAt  DateTime @default(now()) @map("created_at")
+    staffId    Int?      @map("staff_id")
+    chatRoomId Int       @map("chat_room_id")
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime? @updatedAt @map("updated_at")
 
     staffs    Staff?   @relation(fields: [staffId], references: [id])
     chatRooms ChatRoom @relation(fields: [chatRoomId], references: [id])
