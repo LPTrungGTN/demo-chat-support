@@ -19,7 +19,7 @@ export class MessageController {
     @Param('roomId') roomId: string,
     @Res() res: Response,
   ): Promise<Response> {
-    const numericRoomId = Number(roomId);
+    const numericRoomId = Number(roomId.trim());
     if (isNaN(numericRoomId)) throw new BadRequestException();
 
     const messages = await this.service.listMsgByRoomId(numericRoomId);
