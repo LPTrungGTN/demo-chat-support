@@ -6,7 +6,7 @@ import { ChatRoomRepository } from './chat-room.repository';
 export class ChatRoomService {
   constructor(private readonly repository: ChatRoomRepository) {}
 
-  public async listAllByStaffId(staffId: number | null) {
+  public async listAllByStaffId(staffId: number | undefined) {
     return await this.repository.listAllByStaffId(staffId);
   }
 }

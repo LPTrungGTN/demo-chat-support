@@ -25,6 +25,12 @@ export class ChatRoomRepository {
     });
   }
 
+  public async findById(id: number): Promise<ChatRoomPrisma> {
+    return await this.prisma.chatRoom.findFirst({
+      where: { id },
+    });
+  }
+
   public async assignStaffToRoom(
     staffId: number,
     id: number,
@@ -35,7 +41,9 @@ export class ChatRoomRepository {
     });
   }
 
-  public async listAllByStaffId(staffId: number | null): Promise<ChatRoom[]> {
+  public async listAllByStaffId(
+    staffId: number | undefined,
+  ): Promise<ChatRoom[]> {
     const chatRooms = await this.prisma.chatRoom.findMany({
       include: {
         messages: {
@@ -47,11 +55,16 @@ export class ChatRoomRepository {
           take: 1,
         },
       },
-      orderBy: { updatedAt: 'asc' },
       where: { staffId },
     });
 
-    return chatRooms.map((chatRoom) => this.toDomain(chatRoom));
+    const sortedChatRooms = chatRooms.sort((a, b) => {
+      const dateA = a.messages[0]?.createdAt || new Date(0);
+      const dateB = b.messages[0]?.createdAt || new Date(0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
   }
 
   public toDomain(
