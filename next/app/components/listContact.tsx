@@ -24,26 +24,26 @@ const ListContact = ({ socket }: SocketProps) => {
 
       //doing 4
       socket.on('newMessage', (data) => {
-        setContacts((prevContacts) => {
+        setContacts((prev) => {
           const { message: newMessage, roomId } = data;
 
-          const contactIndex = prevContacts.findIndex(
+          const contactIndex = prev.findIndex(
             (contact) => contact.roomId === roomId,
           );
           if (contactIndex === -1) {
-            return prevContacts;
+            return prev;
           }
 
           const updatedContact = {
-            ...prevContacts[contactIndex],
+            ...prev[contactIndex],
             message: newMessage,
             status: true,
           };
 
           return [
             updatedContact,
-            ...prevContacts.slice(0, contactIndex),
-            ...prevContacts.slice(contactIndex + 1),
+            ...prev.slice(0, contactIndex),
+            ...prev.slice(contactIndex + 1),
           ];
         });
       });
