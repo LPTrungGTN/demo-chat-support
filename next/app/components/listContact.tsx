@@ -1,5 +1,7 @@
 'use client';
 
+import { ContactInterface, listByStaffId } from '@api/chatRoom';
+import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 
 import { listByRoomId } from '@/app/api/message';
@@ -10,14 +12,7 @@ import Contact from './contact';
 
 const ListContact = ({ socket }: SocketProps) => {
   const { setMessages } = useChatContext();
-  const [contacts, setContacts] = useState<
-    {
-      message: string;
-      roomId: string;
-      status: boolean;
-      timestamp: string;
-    }[]
-  >([]);
+  const [contacts, setContacts] = useState<ContactInterface[]>([]);
 
   useEffect(() => {
     if (socket) {
@@ -34,6 +29,17 @@ const ListContact = ({ socket }: SocketProps) => {
       });
     }
   }, [socket]);
+
+  useEffect(() => {
+    const getContacts = async () => {
+      const accessToken = Cookies.get('accessToken');
+      const data = await listByStaffId(accessToken);
+      setContacts(data.rooms);
+    };
+    if (contacts.length === 0) {
+      getContacts().catch(console.error);
+    }
+  });
 
   const handleContactClick = async (roomId: string) => {
     try {
