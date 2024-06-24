@@ -16,7 +16,7 @@ export const listByRoomId = async (
   roomId: string,
 ): Promise<MessageResponse> => {
   const response = await axios.get<MessageResponse>(
-    `${BASE_URL}/message/:${roomId}`,
+    `${BASE_URL}/messages/:${roomId}`,
   );
   return response.data;
 };

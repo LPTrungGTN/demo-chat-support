@@ -3,7 +3,7 @@ import { Response } from 'express';
 
 import { MessageService } from './message.service';
 
-@Controller('message')
+@Controller('messages')
 export class MessageController {
   constructor(private readonly service: MessageService) {}
 
