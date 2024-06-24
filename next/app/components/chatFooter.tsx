@@ -4,23 +4,25 @@ import 'react-toastify/dist/ReactToastify.css';
 import Cookies from 'js-cookie';
 import { ChangeEvent, KeyboardEvent, useState } from 'react';
 
+import { useChatContext } from '@/app/contexts/chatContext';
 import { SocketProps } from '@/app/utils/hooks/useSocket';
 
 const ChatFooter = ({ socket }: SocketProps) => {
   const [message, setMessage] = useState('');
-  const [roomId, setRoomId] = useState<string>('');
+  const { roomId } = useChatContext();
 
   const handleInputMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
 
   const handleSendMessage = () => {
-    const roomIdCookies = Cookies.get('roomId');
-    if (roomIdCookies) {
-      setRoomId(roomIdCookies);
-    }
-
-    if (socket) socket.emit('sendMessage', { language: 'en', message, roomId });
+    if (socket)
+      socket.emit('sendMessage', {
+        language: 'en',
+        message,
+        roomId,
+        staffId: Cookies.get('accessToken'),
+      });
     setMessage('');
   };
 
