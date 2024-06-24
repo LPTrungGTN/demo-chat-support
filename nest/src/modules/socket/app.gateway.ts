@@ -124,7 +124,9 @@ export class AppGateway
       });
     }
 
+    //doing 4
     this.io.to(roomId).emit('newMessage', {
+      chatRoomId: Number(roomId),
       content: message,
       createdAt: timestamp,
       staffId: staffId ? Number(staffId) : RoleEnum.USER,

@@ -22,6 +22,31 @@ const ListContact = ({ socket }: SocketProps) => {
         setContacts((prev) => [data, ...prev]);
       });
 
+      //doing 4
+      socket.on('newMessage', (data) => {
+        setContacts((prevContacts) => {
+          const { message: newMessage, roomId } = data;
+
+          const contactIndex = prevContacts.findIndex(
+            (contact) => contact.roomId === roomId,
+          );
+          if (contactIndex === -1) {
+            return prevContacts;
+          }
+
+          const updatedContact = {
+            ...prevContacts[contactIndex],
+            message: newMessage,
+            status: true,
+          };
+
+          return [
+            updatedContact,
+            ...prevContacts.slice(0, contactIndex),
+            ...prevContacts.slice(contactIndex + 1),
+          ];
+        });
+      });
       socket.on('roomCreated', (data) => {
         setContacts((prev) => [data, ...prev]);
         handleContactClick(data.roomId);

@@ -8,8 +8,9 @@ interface Props {
   onClick: (roomId: string) => void;
 }
 
+//doing 4
 const Contact = ({ contact, onClick }: Props) => {
-  const { createdAt, message, roomId } = contact;
+  const { createdAt, message, roomId, status } = contact;
   return (
     <div
       key={roomId}
@@ -23,6 +24,9 @@ const Contact = ({ contact, onClick }: Props) => {
       <p className='ml-2 whitespace-no-wrap text-xl w-1/6 text-slate-500'>
         {createdAt}
       </p>
+      {status ? (
+        <div className='bg-blue-700 w-3 h-3 rounded-full flex flex-shrink-0 hidden md:block group-hover:block'></div>
+      ) : null}
     </div>
   );
 };

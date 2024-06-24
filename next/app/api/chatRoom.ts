@@ -4,10 +4,12 @@ import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 
 const BASE_URL = process.env.BASE_URL;
 
+//doing 4
 export interface ContactInterface {
   createdAt: string;
   message: string;
   roomId: string;
+  status?: boolean;
 }
 
 interface RoomResponse {
