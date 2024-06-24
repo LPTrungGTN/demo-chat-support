@@ -11,6 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 
 import { Language } from '@/common/enums/language';
+import { RoleEnum } from '@/common/enums/role';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
 import { MessageRepository } from '@/modules/message/message.repository';
@@ -54,7 +55,13 @@ export class AppGateway
     const chatRoom = await this.chatRoomRepository.create(data);
     const { id } = chatRoom;
     client.join(String(id));
-    this.io.to(client.id).emit('roomCreated', { id });
+
+    this.io.to(client.id).emit('roomCreated', {
+      message: '',
+      roomId: id,
+      status: false,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   @SubscribeMessage('joinRoom')
@@ -63,9 +70,8 @@ export class AppGateway
     @MessageBody() data: { roomId: string; staffId: string },
   ) {
     const { roomId, staffId } = data;
-    const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
-      Number(roomId),
-    );
+    const numbericRoomId = Number(roomId);
+    const chatRoom = await this.chatRoomRepository.findById(numbericRoomId);
 
     if (!chatRoom) {
       return this.io.to(client.id).emit('error', {
@@ -77,23 +83,21 @@ export class AppGateway
     this.io.to(roomId).emit('staffJoined', { roomId, staffId });
     await this.chatRoomRepository.assignStaffToRoom(
       Number(staffId),
-      Number(roomId),
+      numbericRoomId,
     );
   }
 
   @SubscribeMessage('sendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { message: string; roomId: string },
+    @MessageBody() data: { message: string; roomId: string; staffId?: string },
   ) {
     const timestamp = new Date().toISOString();
-    const { message, roomId } = data;
-    console.log('start handler msg', message, roomId);
+    const { message, roomId, staffId } = data;
     if (message === 'staff') {
       const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
         Number(roomId),
       );
-      console.log('chatRoom', chatRoom);
 
       if (!chatRoom) {
         return this.io.to(client.id).emit('error', {
@@ -123,12 +127,13 @@ export class AppGateway
     this.io.to(roomId).emit('newMessage', {
       content: message,
       createdAt: timestamp,
-      staffId: client.id,
+      staffId: staffId ? Number(staffId) : RoleEnum.USER,
     });
 
     await this.messageRepository.create({
       chatRoomId: Number(roomId),
       content: message,
+      staffId: staffId ? Number(staffId) : null,
     });
   }
 
@@ -137,14 +142,12 @@ export class AppGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { staffId: string },
   ) {
-    console.log('staffActive', data.staffId);
     try {
-      const result = await this.staffStatusRepository.upsert(
+      await this.staffStatusRepository.upsert(
         Number(data.staffId),
         StaffStatus.ACTIVE,
         client.id,
       );
-      console.log('result', result);
     } catch (error) {
       this.io.to(client.id).emit('error', {
         message: 'Server error. Please try again later.',
