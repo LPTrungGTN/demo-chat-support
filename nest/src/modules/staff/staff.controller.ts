@@ -9,7 +9,7 @@ export class StaffController {
   constructor(private readonly service: StaffService) {}
 
   @Post('/login')
-  public async store(
+  public async login(
     @Body() request: LoginRequestDto,
     @Res() res: Response,
   ): Promise<Response> {

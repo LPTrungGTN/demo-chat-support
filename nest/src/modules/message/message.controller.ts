@@ -8,7 +8,7 @@ export class MessageController {
   constructor(private readonly service: MessageService) {}
 
   @Get(':roomId')
-  public async store(
+  public async show(
     @Param('roomId') roomId: string,
     @Res() res: Response,
   ): Promise<Response> {
