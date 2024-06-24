@@ -1,3 +1,5 @@
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
+
 export const accounts = [
   {
     message: 'Ok, see you at the subway in a bit.',
@@ -31,7 +33,7 @@ export const messages = [
     groupId: 2,
     message: 'start',
     timeStamp: '2021-10-10T10:00:00',
-    userId: 'customer',
+    userId: RoleEnum.USER,
   },
   {
     groupId: 2,
@@ -44,7 +46,7 @@ export const messages = [
     groupId: 2,
     message: 'english',
     timeStamp: '2021-10-10T10:02:00',
-    userId: 'customer',
+    userId: RoleEnum.USER,
   },
   {
     groupId: 2,
@@ -56,6 +58,6 @@ export const messages = [
     groupId: 2,
     message: 'report',
     timeStamp: '2021-10-10T10:04:00',
-    userId: 'customer',
+    userId: RoleEnum.USER,
   },
 ];
