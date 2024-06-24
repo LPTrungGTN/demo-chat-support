@@ -1,21 +1,22 @@
 'use client';
 
 import Cookies from 'js-cookie';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
 import { ChatProvider } from '@/app/contexts/chatContext';
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 import createSocket from '@/app/utils/hooks/useSocket';
 
 import ChatBox from './chatBox';
 import ListContact from './listContact';
 
 const AdminArea = () => {
-  const socket = createSocket('chat');
+  const socket = useMemo(() => createSocket('chat'), []);
 
   useEffect(() => {
     const accessToken = Cookies.get('accessToken');
-    if (!accessToken || accessToken === 'customer') return;
+    if (!accessToken || accessToken === RoleEnum.USER) return;
     socket.emit('staffActive', { staffId: accessToken });
     socket.on('error', (data) => {
       toast.error(data.message);
