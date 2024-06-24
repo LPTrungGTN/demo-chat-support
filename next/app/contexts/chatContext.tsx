@@ -3,7 +3,9 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 
 interface ChatContextType {
   messages: Message[];
-  setMessages: (messages: Message[]) => void;
+  roomId: string;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  setRoomId: (roomId: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -22,10 +24,13 @@ interface ChatProviderProps {
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [roomId, setRoomId] = useState<string>('');
 
   const value = {
     messages,
+    roomId,
     setMessages,
+    setRoomId,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
