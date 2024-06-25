@@ -1,7 +1,9 @@
+import { Message } from './message';
+
 export class ChatRoom {
   constructor(
     private readonly roomId: number,
-    private readonly message: string,
+    private readonly message: Message,
     private readonly createdAt: string,
   ) {}
 
@@ -9,7 +11,7 @@ export class ChatRoom {
     return this.roomId;
   }
 
-  public get getMessage(): string {
+  public get getMessage(): Message {
     return this.message;
   }
 
