@@ -10,9 +10,13 @@ export const displayError = (error: any) => {
     case 401:
       return toast.error('Invalid credentials');
     case 400:
-      message.forEach((message: string) => {
+      if (typeof message === 'string') {
         toast.error(message);
-      });
+      } else {
+        message.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
     default:
       return toast.error('Internal server error');
   }
