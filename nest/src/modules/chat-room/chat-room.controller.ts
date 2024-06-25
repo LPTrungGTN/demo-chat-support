@@ -13,15 +13,7 @@ export class ChatRoomController {
     @Query() query: ListChatRoomQueryDto,
     @Res() res: Response,
   ): Promise<Response> {
-    const { staffId } = query;
-    const numericStaffId = staffId ? Number(staffId) : undefined;
-
-    if (!numericStaffId && numericStaffId !== undefined) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'staffId is required',
-      });
-    }
-    const rooms = await this.service.listAllByStaffId(numericStaffId);
+    const rooms = await this.service.listAllByStaffId(query.staffId);
     return res.status(HttpStatus.OK).json({ rooms });
   }
 }
