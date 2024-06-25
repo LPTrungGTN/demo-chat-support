@@ -17,7 +17,7 @@ const ChatBody = ({ socket }: SocketProps) => {
   const { messages, setMessages, setRoomId } = useChatContext();
   useEffect(() => {
     socket.on('newMessage', (data) => {
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => [...prev, data.message]);
     });
 
     socket.on('roomCreated', (data) => {
@@ -48,7 +48,9 @@ const ChatBody = ({ socket }: SocketProps) => {
     <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) => {
         const { content, staffId } = msg;
-        const senderId = !staffId ? RoleEnum.USER : Number(staffId);
+
+        const senderId =
+          staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId);
         return senderId === accessToken ? (
           <MyMessageComponent msg={content} />
         ) : (
