@@ -82,7 +82,7 @@ export class ChatRoomRepository {
     const { content, createdAt, staffId } = messages[0];
     return new ChatRoom(
       id,
-      new Message(content ?? '', staffId),
+      new Message(content ?? '', staffId ?? RoleEnum.USER),
       createdAt ? formatDateTime(createdAt) : '',
     );
   }
