@@ -70,8 +70,8 @@ export class AppGateway
     @MessageBody() data: { roomId: string; staffId: string },
   ) {
     const { roomId, staffId } = data;
-    const numbericRoomId = Number(roomId);
-    const chatRoom = await this.chatRoomRepository.findById(numbericRoomId);
+    const numericRoomId = Number(roomId);
+    const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
 
     if (!chatRoom) {
       return this.io.to(client.id).emit('error', {
@@ -83,7 +83,7 @@ export class AppGateway
     this.io.to(roomId).emit('staffJoined', { roomId, staffId });
     await this.chatRoomRepository.assignStaffToRoom(
       Number(staffId),
-      numbericRoomId,
+      numericRoomId,
     );
   }
 
@@ -124,12 +124,13 @@ export class AppGateway
       });
     }
 
-    //doing 4
     this.io.to(roomId).emit('newMessage', {
       chatRoomId: Number(roomId),
-      content: message,
       createdAt: timestamp,
-      staffId: staffId ? Number(staffId) : RoleEnum.USER,
+      message: {
+        content: message,
+        staffId: staffId ? Number(staffId) : RoleEnum.USER,
+      },
     });
 
     await this.messageRepository.create({
