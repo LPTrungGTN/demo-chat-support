@@ -4,8 +4,7 @@ const BASE_URL = process.env.BASE_URL;
 
 export interface Message {
   content: string;
-  createdAt: string;
-  staffId: number | null;
+  staffId: number | string;
 }
 
 interface MessageResponse {
