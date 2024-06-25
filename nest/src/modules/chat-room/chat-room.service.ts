@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+
+import { RoleEnum } from '@/common/enums/role';
 
 import { ChatRoomRepository } from './chat-room.repository';
 import { ChatRoom } from './domain/chat-room';
@@ -7,9 +9,22 @@ import { ChatRoom } from './domain/chat-room';
 export class ChatRoomService {
   constructor(private readonly repository: ChatRoomRepository) {}
 
-  public async listAllByStaffId(
-    staffId: number | undefined,
-  ): Promise<ChatRoom[]> {
-    return await this.repository.listAllByStaffId(staffId);
+  public async listAllByStaffId(staffId: string): Promise<ChatRoom[]> {
+    console.log('staffId', staffId);
+    const numericStaffId = this.parseStaffId(staffId);
+    console.log('numericStaffId', numericStaffId);
+
+    if (!numericStaffId && numericStaffId !== undefined) {
+      throw new BadRequestException('staffId is required');
+    }
+
+    return await this.repository.listAllByStaffId(numericStaffId);
+  }
+
+  private parseStaffId(staffId: string | undefined): number | undefined {
+    if (!staffId || staffId === RoleEnum.USER) {
+      return undefined;
+    }
+    return Number(staffId);
   }
 }
