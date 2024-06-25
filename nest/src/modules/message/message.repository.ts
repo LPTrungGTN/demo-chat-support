@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Message } from '@prisma/client';
+import { Message as MessagePrisma } from '@prisma/client';
 
+import { RoleEnum } from '@/common/enums/role';
+import { Message } from '@/modules/chat-room/domain/message';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
 @Injectable()
@@ -11,14 +13,14 @@ export class MessageRepository {
     chatRoomId: number;
     content: string;
     staffId?: number | null;
-  }): Promise<Message> {
+  }): Promise<MessagePrisma> {
     return await this.prisma.message.create({
       data,
     });
   }
 
-  public async listByChatRoomId(chatRoomId: number) {
-    return await this.prisma.message.findMany({
+  public async listByChatRoomId(chatRoomId: number): Promise<Message[]> {
+    const data = await this.prisma.message.findMany({
       orderBy: {
         createdAt: 'asc',
       },
@@ -31,5 +33,11 @@ export class MessageRepository {
         chatRoomId,
       },
     });
+
+    return data.map(this.toDomain);
+  }
+
+  private toDomain(message: MessagePrisma): Message {
+    return new Message(message.content, message.staffId ?? RoleEnum.USER);
   }
 }
