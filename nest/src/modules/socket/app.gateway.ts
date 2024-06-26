@@ -129,14 +129,14 @@ export class AppGateway
       createdAt: timestamp,
       message: {
         content: message,
-        staffId: staffId ? Number(staffId) : RoleEnum.USER,
+        staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
       },
     });
 
     await this.messageRepository.create({
       chatRoomId: Number(roomId),
       content: message,
-      staffId: staffId ? Number(staffId) : null,
+      staffId: staffId === RoleEnum.USER ? null : Number(staffId),
     });
   }
 

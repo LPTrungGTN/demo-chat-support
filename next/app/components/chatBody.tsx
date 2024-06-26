@@ -26,10 +26,6 @@ const ChatBody = ({ socket }: SocketProps) => {
       Cookies.set('roomId', roomId);
     });
 
-    socket.on('staffJoined', (data) => {
-      console.log('Staff joined:', data);
-    });
-
     socket.on('error', (data) => {
       toast.error(data.message);
     });
