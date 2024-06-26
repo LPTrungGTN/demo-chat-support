@@ -10,6 +10,7 @@ module.exports = {
     'sort-keys-custom-order',
     'simple-import-sort',
     'unused-imports',
+    'prettier',
   ],
   extends: [
     'plugin:@typescript-eslint/recommended',
@@ -38,12 +39,12 @@ module.exports = {
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'unused-imports/no-unused-imports': 'error',
+    'prettier/prettier': [
+      'error',
+      {
+        singleQuote: true,
+        parser: 'flow',
+      },
+    ],
   },
-  'prettier/prettier': [
-    'error',
-    {
-      singleQuote: true,
-      parser: 'flow',
-    },
-  ],
 };
