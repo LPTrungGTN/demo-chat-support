@@ -5,24 +5,25 @@ import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import MyMessageComponent from '@/app/components/myMessageComponent';
-import OtherMessageComponent from '@/app/components/otherMessageComponent';
 import { useChatContext } from '@/app/contexts/chatContext';
 import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 import { SocketProps } from '@/app/utils/hooks/useSocket';
 
+import MessageComponent from './messageComponent';
+
 const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
 
-  const { messages, setMessages, setChatRoomId } = useChatContext();
+  const { messages, setChatRoomId, setMessages } = useChatContext();
   useEffect(() => {
     socket.on('newMessage', (data) => {
+      console.log('newMessage');
+      console.log(data);
       setMessages((prev) => [...prev, data.message]);
     });
 
     socket.on('roomCreated', (data) => {
-      const { chatRoomId } = data;
-      setChatRoomId(chatRoomId);
+      setChatRoomId(data.chatRoomId);
     });
 
     socket.on('error', (data) => {
@@ -46,11 +47,8 @@ const ChatBody = ({ socket }: SocketProps) => {
 
         const senderId =
           staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId);
-        return senderId === accessToken ? (
-          <MyMessageComponent msg={content} />
-        ) : (
-          <OtherMessageComponent msg={content} />
-        );
+        const isOwnMessage = senderId === accessToken;
+        return <MessageComponent msg={content} isOwnMessage={isOwnMessage} />;
       })}
     </div>
   );
