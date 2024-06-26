@@ -84,10 +84,12 @@ export class AppGateway
 
     client.join(chatRoomId);
     this.io.to(chatRoomId).emit('staffJoined', { chatRoomId, staffId });
-    await this.chatRoomRepository.assignStaffToRoom(
-      Number(staffId),
-      numericRoomId,
-    );
+    if (staffId || staffId !== RoleEnum.USER) {
+      await this.chatRoomRepository.assignStaffToRoom(
+        Number(staffId),
+        numericRoomId,
+      );
+    }
   }
 
   @SubscribeMessage('sendMessage')
@@ -131,6 +133,8 @@ export class AppGateway
       });
     }
 
+    console.log('start send msg');
+
     this.io.to(chatRoomId).emit('newMessage', {
       chatRoomId: Number(chatRoomId),
       createdAt,
@@ -145,6 +149,8 @@ export class AppGateway
       content: message,
       staffId: staffId === RoleEnum.USER ? null : Number(staffId),
     });
+
+    this.io.emit('updateContact');
   }
 
   @SubscribeMessage('staffActive')
