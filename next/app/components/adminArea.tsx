@@ -21,6 +21,10 @@ const AdminArea = () => {
     socket.on('error', (data) => {
       toast.error(data.message);
     });
+
+    return () => {
+      socket.off('error');
+    };
   }, []);
   return (
     <ChatProvider>
