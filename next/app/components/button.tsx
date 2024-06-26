@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { NextPage } from 'next';
 
 interface Props {
   label: string;
@@ -8,7 +8,7 @@ interface Props {
 const Button: NextPage<Props> = ({ label, onClick }) => {
   return (
     <button
-      className="w-full  bg-blue-100 hover:bg-blue-300 text-black py-4 px-12 rounded"
+      className='w-full  bg-blue-100 hover:bg-blue-300 text-black py-4 px-12 rounded'
       onClick={onClick}
     >
       {label}

@@ -1,9 +1,11 @@
 FROM node:22-alpine AS base
 
-WORKDIR /usr/src/app
+WORKDIR /frontend
 
-COPY ../next/ /usr/src/app
+COPY ../next/ /frontend
 
-EXPOSE 3000
+# setup for bufferutil and utf-8-validate to suitable with socket.io
+RUN apk add --no-cache python3 python3-dev py3-pip build-base
+RUN ln -sf python3 /usr/bin/python
 
 CMD npm install && npm run dev 

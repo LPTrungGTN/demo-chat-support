@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Staff {
-    id        Int      @id
+    id        Int      @id @default(autoincrement())
     username  String   @unique
     password  String
     createdAt DateTime @default(now()) @map("created_at")
@@ -29,6 +29,7 @@ model Staff {
 
 model StaffStatus {
     staffId            Int      @id @map("staff_id")
+    clientId           String?  @map("client_id") // client_id is the socket id
     maxActiveChats     Int      @map("max_active_chats")
     currentActiveChats Int      @map("current_active_chats")
     status             Int      @default(0)
@@ -40,7 +41,7 @@ model StaffStatus {
 }
 
 model Category {
-    id          Int    @id
+    id          Int    @id @default(autoincrement())
     name        String
     description String
 
@@ -62,27 +63,29 @@ model StaffCategory {
 }
 
 model ChatRoom {
-    id         Int      @id
-    staffId    Int      @map("staff_id")
-    categoryId Int      @map("category_id")
+    id         Int       @id @default(autoincrement())
+    staffId    Int?      @map("staff_id")
+    categoryId Int       @map("category_id")
     language   String
-    status     String
-    rating     Int
-    createdAt  DateTime @default(now()) @map("created_at")
+    status     String    @default("open")
+    rating     Int?
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime? @updatedAt @map("updated_at")
 
     messages   Message[]
-    staffs     Staff     @relation(fields: [staffId], references: [id])
+    staffs     Staff?    @relation(fields: [staffId], references: [id])
     categories Category  @relation(fields: [categoryId], references: [id])
 
     @@map("chatRooms")
 }
 
 model Message {
-    id         Int      @id
+    id         Int       @id @default(autoincrement())
     content    String
-    staffId    Int      @map("staff_id")
-    chatRoomId Int      @map("chat_room_id")
-    createdAt  DateTime @default(now()) @map("created_at")
+    staffId    Int?      @map("staff_id")
+    chatRoomId Int       @map("chat_room_id")
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime? @updatedAt @map("updated_at")
 
     staffs    Staff?   @relation(fields: [staffId], references: [id])
     chatRooms ChatRoom @relation(fields: [chatRoomId], references: [id])

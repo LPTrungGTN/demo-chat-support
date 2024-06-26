@@ -1,39 +1,63 @@
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
+
 export const accounts = [
   {
-    image: "https://randomuser.me/api/portraits/women/61.jpg",
-    message: "Ok, see you at the subway in a bit.",
-    name: "Angelina Jolie",
-    time: "Just now",
+    message: 'Ok, see you at the subway in a bit.',
+    time: 'Just now',
   },
   {
-    image: "https://randomuser.me/api/portraits/men/97.jpg",
-    message: "Hey, Are you there?",
-    name: "Tony Stark",
-    status: "online",
-    time: "10min",
+    message: 'Hey, Are you there?',
+    status: 'online',
+    time: '10min',
   },
   {
-    image: "https://randomuser.me/api/portraits/women/33.jpg",
-    message: "You sent a photo.",
-    name: "Scarlett Johansson",
-    time: "1h",
+    message: 'You sent a photo.',
+    time: '1h',
   },
   {
-    image: "https://randomuser.me/api/portraits/men/12.jpg",
-    message: "You missed a call John.",
-    name: "John Snow",
-    time: "4h",
+    message: 'You missed a call John.',
+    time: '4h',
   },
   {
-    image: "https://randomuser.me/api/portraits/men/34.jpg",
-    message: "WTF dude!! absofuckingloutely.",
-    name: "Will Smith",
-    time: "13 Dec",
+    message: 'WTF dude!! absofuckingloutely.',
+    time: '13 Dec',
   },
   {
-    image: "https://randomuser.me/api/portraits/men/22.jpg",
-    message: "you called Brad.",
-    name: "Brad Pitt",
-    time: "31 Dec",
+    message: 'you called Brad.',
+    time: '31 Dec',
+  },
+];
+
+export const messages = [
+  {
+    groupId: 2,
+    message: 'start',
+    timeStamp: '2021-10-10T10:00:00',
+    userId: RoleEnum.USER,
+  },
+  {
+    groupId: 2,
+    message:
+      'Nice to meet you, the first Can you select the language you want to talk to me?',
+    timeStamp: '2021-10-10T10:01:00',
+    userId: 5,
+  },
+  {
+    groupId: 2,
+    message: 'english',
+    timeStamp: '2021-10-10T10:02:00',
+    userId: RoleEnum.USER,
+  },
+  {
+    groupId: 2,
+    message: 'What kind of service do you want to exchange?',
+    timeStamp: '2021-10-10T10:03:00',
+    userId: 5,
+  },
+  {
+    groupId: 2,
+    message: 'report',
+    timeStamp: '2021-10-10T10:04:00',
+    userId: RoleEnum.USER,
   },
 ];

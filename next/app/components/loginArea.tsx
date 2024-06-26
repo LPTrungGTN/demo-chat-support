@@ -8,9 +8,10 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { login } from '@/app/api/authenticate';
 import Button from '@/app/components/button';
 import FormInput from '@/app/components/formInput';
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 
 const FormLogin = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
@@ -22,7 +23,7 @@ const FormLogin = () => {
   }, []);
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+    setUsername(event.target.value);
   };
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -35,14 +36,17 @@ const FormLogin = () => {
     }
   };
 
-  const setLoginCookies = (accessToken: string) => {
+  const setLoginCookies = (accessToken: string, username?: string) => {
     Cookies.set('accessToken', accessToken);
+    if (username) {
+      Cookies.set('username', username);
+    }
   };
 
   const Login = async () => {
     try {
-      const response = await login(email, password);
-      setLoginCookies(response.accessToken);
+      const response = await login(password, username);
+      setLoginCookies(response.accessToken, username);
       redirectTo('/admin');
     } catch (error: any) {
       displayError(error);
@@ -50,8 +54,8 @@ const FormLogin = () => {
   };
 
   const LoginChat = async () => {
-    setLoginCookies('customer');
-    redirectTo('/user');
+    setLoginCookies(RoleEnum.USER);
+    redirectTo('/admin');
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -66,7 +70,7 @@ const FormLogin = () => {
         <FormInput
           label='Email:'
           type='email'
-          value={email}
+          value={username}
           onChange={handleUsernameChange}
         />
         <FormInput

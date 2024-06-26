@@ -1,32 +1,55 @@
-"use client";
-import "react-toastify/dist/ReactToastify.css";
+'use client';
+import 'react-toastify/dist/ReactToastify.css';
 
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { ContactInterface } from '@api/chatRoom';
+import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
 
-import { messages } from "@/app/(pages)/user/fakeData";
-import MyMessageComponent from "@/app/components/myMessageComponent";
-import OtherMessageComponent from "@/app/components/otherMessageComponent";
+import { useChatContext } from '@/app/contexts/chatContext';
+import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
+import { SocketProps } from '@/app/utils/hooks/useSocket';
 
-const ChatBody = () => {
-  const [accessToken, setAccessToken] = useState(0);
+import MessageComponent from './messageComponent';
+
+const ChatBody = ({ socket }: SocketProps) => {
+  const [accessToken, setAccessToken] = useState<string | number>('');
+
+  const { messages, setChatRoomId, setMessages } = useChatContext();
+  useEffect(() => {
+    const handleNewMessage = (data: ContactInterface) => {
+      setMessages((prev) => [...prev, data.message]);
+    };
+
+    const handleRoomCreated = (data: ContactInterface) => {
+      setChatRoomId(data.chatRoomId);
+    };
+
+    socket.on('newMessage', handleNewMessage);
+    socket.on('roomCreated', handleRoomCreated);
+
+    return () => {
+      socket.off('newMessage', handleNewMessage);
+      socket.off('roomCreated', handleRoomCreated);
+    };
+  }, []);
 
   useEffect(() => {
-    const accessToken = Cookies.get("accessToken");
-    if (accessToken) {
-      setAccessToken(Number(accessToken));
-    }
+    const accessToken = Cookies.get('accessToken')!;
+    setAccessToken(
+      accessToken === RoleEnum.USER ? accessToken : Number(accessToken),
+    );
   }, []);
 
   return (
-    <div className="chat-body p-4 flex-1 overflow-y-scroll">
-      {messages.map((msg) =>
-        msg.userId === accessToken ? (
-          <MyMessageComponent msg={msg.content} />
-        ) : (
-          <OtherMessageComponent msg={msg.content} />
-        ),
-      )}
+    <div className='p-4 flex-1 overflow-y-scroll'>
+      {messages.map((msg) => {
+        const { content, staffId } = msg;
+
+        const senderId =
+          staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId);
+        const isOwnMessage = senderId === accessToken;
+        return <MessageComponent msg={content} isOwnMessage={isOwnMessage} />;
+      })}
     </div>
   );
 };
