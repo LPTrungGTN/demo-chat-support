@@ -5,12 +5,12 @@ import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 const BASE_URL = process.env.BASE_URL;
 
 export interface ContactInterface {
+  chatRoomId: string;
   createdAt: string;
   message: {
     content: string;
     staffId: number | string;
   };
-  chatRoomId: string;
 }
 
 interface RoomResponse {
