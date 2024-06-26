@@ -12,49 +12,40 @@ import { SocketProps } from '@/app/utils/hooks/useSocket';
 import Contact from './contact';
 
 const ListContact = ({ socket }: SocketProps) => {
-  const { setMessages, setChatRoomId, contacts, setContacts, chatRoomId } =
+  const { chatRoomId, contacts, setChatRoomId, setContacts, setMessages } =
     useChatContext();
   const [accessToken, setAccessToken] = useState<string>('');
 
   useEffect(() => {
-    if (socket) {
-      socket.on('newCustomer', (data) => {
-        setContacts((prev) => [data, ...prev]);
-      });
+    socket.on('newCustomer', (data) => {
+      setContacts((prev) => [data, ...prev]);
+    });
 
-      socket.on('newMessage', (data) => {
-        setContacts((prev) => {
-          const { message: newMessage, chatRoomId } = data;
+    socket.on('roomCreated', (data) => {
+      setContacts((prev) => [data, ...prev]);
+      handleContactClick(data.chatRoomId);
+    });
 
-          const index = prev.findIndex(
-            (contact) => contact.chatRoomId === chatRoomId,
-          );
+    socket.on('updateContact', async () => {
+      const token = Cookies.get('accessToken')!;
+      const dataBe = await listByStaffId(
+        token === RoleEnum.USER ? token : token,
+      );
+      setContacts(dataBe.rooms);
+    });
 
-          const updatedContact = { ...prev[index], message: newMessage };
-
-          const newContacts = [...prev];
-          newContacts.splice(index, 1);
-
-          newContacts.unshift(updatedContact);
-
-          return newContacts;
-        });
-      });
-      socket.on('roomCreated', (data) => {
-        setContacts((prev) => [data, ...prev]);
-        handleContactClick(data.chatRoomId);
-      });
-
-      socket.on('error', (data) => {
-        console.error(data.message);
-      });
-    }
+    return () => {
+      socket.off('newCustomer');
+      socket.off('roomCreated');
+      socket.off('updateContact');
+    };
   }, []);
 
   useEffect(() => {
     const getContacts = async () => {
-      setAccessToken(Cookies.get('accessToken')!);
-      const data = await listByStaffId(accessToken);
+      const token = Cookies.get('accessToken')!;
+      setAccessToken(token === RoleEnum.USER ? token : token);
+      const data = await listByStaffId(Cookies.get('accessToken')!);
       setContacts(data.rooms);
     };
     if (contacts.length === 0) {
@@ -67,7 +58,7 @@ const ListContact = ({ socket }: SocketProps) => {
       const data = await listByRoomId(chatRoomId);
       setChatRoomId(chatRoomId);
       setMessages(data.messages);
-      socket.emit('joinRoom', { chatRoomId, staffId: accessToken });
+      socket.emit('joinRoom', { chatRoomId });
     } catch (error) {
       console.error(error);
     }
