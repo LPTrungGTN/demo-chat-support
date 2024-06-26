@@ -1,18 +1,14 @@
-export function formatDateTime(date: Date): string {
+export function formatDateTime(date: Date = new Date()): string {
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const dateOfMessage = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  );
 
-  if (dateOfMessage.getTime() !== today.getTime())
-    return `${date.getDate()}/${date.getMonth() + 1}`;
+  if (date.getFullYear() !== now.getFullYear()) return `${date.getFullYear()}`;
+  if (date.getMonth() !== now.getMonth()) return `${date.getMonth() + 1}`;
+  if (date.getDay !== now.getDay) return `${date.getDate()}`;
 
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  if (hours === 0 && minutes < 60) return `${minutes} phút`;
+  const hours = now.getHours() - date.getHours();
+  const minutes = now.getMinutes() - date.getMinutes();
 
+  if (hours === 0 && minutes === 0) return 'now';
+  if (hours === 0) return `${minutes} phút`;
   return `${hours} giờ`;
 }
