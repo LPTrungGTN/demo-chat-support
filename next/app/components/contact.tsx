@@ -3,14 +3,16 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { ContactInterface } from '@api/chatRoom';
 import { RoleEnum } from '@utils/Enums/RoleEnum';
+import { useState } from 'react';
 
 interface Props {
   contact: ContactInterface;
   onClick: (chatRoomId: string) => void;
   accessToken: string;
+  isSelected: boolean;
 }
 
-const Contact = ({ contact, onClick, accessToken }: Props) => {
+const Contact = ({ contact, onClick, accessToken, isSelected }: Props) => {
   const {
     createdAt,
     message: { content, staffId },
@@ -25,7 +27,7 @@ const Contact = ({ contact, onClick, accessToken }: Props) => {
   return (
     <div
       key={chatRoomId}
-      className='flex justify-between items-center p-3 hover:bg-gray-800 rounded-lg relative'
+      className={`flex justify-between items-center p-3 rounded-lg relative ${isSelected ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
       onClick={() => onClick(chatRoomId)}
     >
       <p className='text-white text-2xl font-bold w-1/6'>{chatRoomId}</p>

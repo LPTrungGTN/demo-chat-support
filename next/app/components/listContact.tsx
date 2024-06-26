@@ -1,6 +1,6 @@
 'use client';
 
-import { ContactInterface, listByStaffId } from '@api/chatRoom';
+import { listByStaffId } from '@api/chatRoom';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 
@@ -12,8 +12,8 @@ import { SocketProps } from '@/app/utils/hooks/useSocket';
 import Contact from './contact';
 
 const ListContact = ({ socket }: SocketProps) => {
-  const { setMessages, setRoomId } = useChatContext();
-  const [contacts, setContacts] = useState<ContactInterface[]>([]);
+  const { setMessages, setChatRoomId, contacts, setContacts, chatRoomId } =
+    useChatContext();
   const [accessToken, setAccessToken] = useState<string>('');
 
   useEffect(() => {
@@ -22,33 +22,31 @@ const ListContact = ({ socket }: SocketProps) => {
         setContacts((prev) => [data, ...prev]);
       });
 
-      //   socket.on('newMessage', (data) => {
-      //     setContacts((prev) => {
-      //       const { message: newMessage, roomId } = data;
+      socket.on('newMessage', (data) => {
+        console.log('start handler new message, data: ', data);
+        setContacts((prev) => {
+          const { message: newMessage, chatRoomId } = data;
+          console.log(
+            'chatRoomId: ',
+            chatRoomId,
+            'typeof: ',
+            typeof chatRoomId,
+          );
 
-      //       const contactIndex = prev.findIndex(
-      //         (contact) => contact.roomId === roomId,
-      //       );
-      //       if (contactIndex === -1) {
-      //         return prev;
-      //       }
+          return prev.map((contact) => {
+            if (contact.chatRoomId === chatRoomId) {
+              console.log('contact suitable: ', contact);
+              return { ...contact, message: newMessage };
+            }
+            return contact;
+          });
+        });
 
-      //       const updatedContact = {
-      //         ...prev[contactIndex],
-      //         message: newMessage,
-      //         status: true,
-      //       };
-
-      //       return [
-      //         updatedContact,
-      //         ...prev.slice(0, contactIndex),
-      //         ...prev.slice(contactIndex + 1),
-      //       ];
-      //     });
-      //   });
+        console.log('contacts afterfileter: ', contacts);
+      });
       socket.on('roomCreated', (data) => {
         setContacts((prev) => [data, ...prev]);
-        handleContactClick(data.roomId);
+        handleContactClick(data.chatRoomId);
       });
 
       socket.on('error', (data) => {
@@ -68,12 +66,12 @@ const ListContact = ({ socket }: SocketProps) => {
     }
   });
 
-  const handleContactClick = async (roomId: string) => {
+  const handleContactClick = async (chatRoomId: string) => {
     try {
-      const data = await listByRoomId(roomId);
-      setRoomId(roomId);
+      const data = await listByRoomId(chatRoomId);
+      setChatRoomId(chatRoomId);
       setMessages(data.messages);
-      socket.emit('joinRoom', { roomId, staffId: accessToken });
+      socket.emit('joinRoom', { chatRoomId, staffId: accessToken });
     } catch (error) {
       console.error(error);
     }
@@ -115,10 +113,11 @@ const ListContact = ({ socket }: SocketProps) => {
       <div className='contacts p-2 flex-1 overflow-y-scroll'>
         {contacts.map((contact) => (
           <Contact
-            key={contact.roomId}
+            key={contact.chatRoomId}
             contact={contact}
             onClick={handleContactClick}
             accessToken={accessToken}
+            isSelected={chatRoomId === contact.chatRoomId}
           />
         ))}
       </div>
