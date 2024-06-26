@@ -119,6 +119,7 @@ const ListContact = ({ socket }: SocketProps) => {
             key={contact.roomId}
             contact={contact}
             onClick={handleContactClick}
+            accessToken={accessToken}
           />
         ))}
       </div>
