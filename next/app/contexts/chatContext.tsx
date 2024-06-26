@@ -1,14 +1,14 @@
+import { ContactInterface } from '@api/chatRoom';
 import { Message } from '@api/message';
 import { createContext, ReactNode, useContext, useState } from 'react';
-import { ContactInterface } from '../api/chatRoom';
 
 interface ChatContextType {
-  messages: Message[];
   chatRoomId: string;
   contacts: ContactInterface[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  setContacts: React.Dispatch<React.SetStateAction<ContactInterface[]>>;
+  messages: Message[];
   setChatRoomId: (chatRoomId: string) => void;
+  setContacts: React.Dispatch<React.SetStateAction<ContactInterface[]>>;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -27,16 +27,16 @@ interface ChatProviderProps {
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-    const [chatRoomId, setChatRoomId] = useState<string>('');
-    const [contacts, setContacts] = useState<ContactInterface[]>([]);
+  const [chatRoomId, setChatRoomId] = useState<string>('');
+  const [contacts, setContacts] = useState<ContactInterface[]>([]);
 
   const value = {
-    messages,
     chatRoomId,
     contacts,
-    setMessages,
-    setContacts,
+    messages,
     setChatRoomId,
+    setContacts,
+    setMessages,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
