@@ -18,18 +18,19 @@ const ChatFooter = ({ socket }: SocketProps) => {
   const handleSendMessage = () => {
     if (socket)
       socket.emit('sendMessage', {
+        chatRoomId,
         language: 'en',
         message,
-        chatRoomId,
         staffId: Cookies.get('accessToken'),
       });
     setMessage('');
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    const checkMessage = message;
-    if (event.key === 'Enter' && checkMessage.trim() !== '') {
-      handleSendMessage();
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      if (message.trim() !== '') {
+        handleSendMessage();
+      }
     }
   };
 
