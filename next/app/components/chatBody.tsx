@@ -1,9 +1,9 @@
 'use client';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { ContactInterface } from '@api/chatRoom';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 
 import { useChatContext } from '@/app/contexts/chatContext';
 import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
@@ -16,28 +16,28 @@ const ChatBody = ({ socket }: SocketProps) => {
 
   const { messages, setChatRoomId, setMessages } = useChatContext();
   useEffect(() => {
-    socket.on('newMessage', (data) => {
-      console.log('newMessage');
-      console.log(data);
+    const handleNewMessage = (data: ContactInterface) => {
       setMessages((prev) => [...prev, data.message]);
-    });
+    };
 
-    socket.on('roomCreated', (data) => {
+    const handleRoomCreated = (data: ContactInterface) => {
       setChatRoomId(data.chatRoomId);
-    });
+    };
 
-    socket.on('error', (data) => {
-      toast.error(data.message);
-    });
+    socket.on('newMessage', handleNewMessage);
+    socket.on('roomCreated', handleRoomCreated);
+
+    return () => {
+      socket.off('newMessage', handleNewMessage);
+      socket.off('roomCreated', handleRoomCreated);
+    };
   }, []);
 
   useEffect(() => {
-    const accessToken = Cookies.get('accessToken');
-    if (accessToken) {
-      setAccessToken(
-        accessToken === RoleEnum.USER ? accessToken : Number(accessToken),
-      );
-    }
+    const accessToken = Cookies.get('accessToken')!;
+    setAccessToken(
+      accessToken === RoleEnum.USER ? accessToken : Number(accessToken),
+    );
   }, []);
 
   return (
