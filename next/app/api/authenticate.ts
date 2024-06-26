@@ -14,7 +14,6 @@ export const login = async (
     password,
     username,
   });
-  console.log('response: ', response);
   return response.data;
 };
 

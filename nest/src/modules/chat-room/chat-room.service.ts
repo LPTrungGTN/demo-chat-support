@@ -10,9 +10,7 @@ export class ChatRoomService {
   constructor(private readonly repository: ChatRoomRepository) {}
 
   public async listAllByStaffId(staffId: string): Promise<ChatRoom[]> {
-    console.log('staffId', staffId);
     const numericStaffId = this.parseStaffId(staffId);
-    console.log('numericStaffId', numericStaffId);
 
     if (!numericStaffId && numericStaffId !== undefined) {
       throw new BadRequestException('staffId is required');
