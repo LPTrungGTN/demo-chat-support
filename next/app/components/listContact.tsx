@@ -23,26 +23,22 @@ const ListContact = ({ socket }: SocketProps) => {
       });
 
       socket.on('newMessage', (data) => {
-        console.log('start handler new message, data: ', data);
         setContacts((prev) => {
           const { message: newMessage, chatRoomId } = data;
-          console.log(
-            'chatRoomId: ',
-            chatRoomId,
-            'typeof: ',
-            typeof chatRoomId,
+
+          const index = prev.findIndex(
+            (contact) => contact.chatRoomId === chatRoomId,
           );
 
-          return prev.map((contact) => {
-            if (contact.chatRoomId === chatRoomId) {
-              console.log('contact suitable: ', contact);
-              return { ...contact, message: newMessage };
-            }
-            return contact;
-          });
-        });
+          const updatedContact = { ...prev[index], message: newMessage };
 
-        console.log('contacts afterfileter: ', contacts);
+          const newContacts = [...prev];
+          newContacts.splice(index, 1);
+
+          newContacts.unshift(updatedContact);
+
+          return newContacts;
+        });
       });
       socket.on('roomCreated', (data) => {
         setContacts((prev) => [data, ...prev]);
