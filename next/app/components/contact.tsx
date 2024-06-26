@@ -2,8 +2,7 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ContactInterface } from '@api/chatRoom';
-import { useEffect } from 'react';
-import { RoleEnum } from '../utils/Enums/RoleEnum';
+import { RoleEnum } from '@utils/Enums/RoleEnum';
 
 interface Props {
   contact: ContactInterface;
