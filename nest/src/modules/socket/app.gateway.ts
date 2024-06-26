@@ -72,7 +72,7 @@ export class AppGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { chatRoomId: string; staffId: string },
   ) {
-    const { chatRoomId, staffId } = data;
+    const { chatRoomId } = data;
     const numericRoomId = Number(chatRoomId);
     const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
 
@@ -82,14 +82,14 @@ export class AppGateway
       });
     }
 
+    const rooms = Array.from(client.rooms);
+    rooms.forEach((room) => {
+      if (room !== client.id) {
+        client.leave(room);
+      }
+    });
+
     client.join(chatRoomId);
-    this.io.to(chatRoomId).emit('staffJoined', { chatRoomId, staffId });
-    if (staffId || staffId !== RoleEnum.USER) {
-      await this.chatRoomRepository.assignStaffToRoom(
-        Number(staffId),
-        numericRoomId,
-      );
-    }
   }
 
   @SubscribeMessage('sendMessage')
@@ -132,8 +132,6 @@ export class AppGateway
         },
       });
     }
-
-    console.log('start send msg');
 
     this.io.to(chatRoomId).emit('newMessage', {
       chatRoomId: Number(chatRoomId),
