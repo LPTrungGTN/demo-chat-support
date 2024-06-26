@@ -10,7 +10,7 @@ export interface ContactInterface {
     content: string;
     staffId: number | string;
   };
-  roomId: string;
+  chatRoomId: string;
 }
 
 interface RoomResponse {

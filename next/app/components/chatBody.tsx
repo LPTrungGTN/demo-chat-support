@@ -14,16 +14,15 @@ import { SocketProps } from '@/app/utils/hooks/useSocket';
 const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
 
-  const { messages, setMessages, setRoomId } = useChatContext();
+  const { messages, setMessages, setChatRoomId } = useChatContext();
   useEffect(() => {
     socket.on('newMessage', (data) => {
       setMessages((prev) => [...prev, data.message]);
     });
 
     socket.on('roomCreated', (data) => {
-      const { id: roomId } = data;
-      setRoomId(roomId);
-      Cookies.set('roomId', roomId);
+      const { chatRoomId } = data;
+      setChatRoomId(chatRoomId);
     });
 
     socket.on('error', (data) => {

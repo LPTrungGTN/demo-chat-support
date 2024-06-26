@@ -8,7 +8,7 @@ import { MessageRepository } from './message.repository';
 export class MessageService {
   constructor(private readonly repository: MessageRepository) {}
 
-  public async listMsgByRoomId(roomId: number): Promise<Message[]> {
-    return await this.repository.listByChatRoomId(roomId);
+  public async listMsgByChatRoomId(chatRoomId: number): Promise<Message[]> {
+    return await this.repository.listByChatRoomId(chatRoomId);
   }
 }

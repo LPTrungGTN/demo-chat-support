@@ -9,7 +9,7 @@ import { SocketProps } from '@/app/utils/hooks/useSocket';
 
 const ChatFooter = ({ socket }: SocketProps) => {
   const [message, setMessage] = useState('');
-  const { roomId } = useChatContext();
+  const { chatRoomId } = useChatContext();
 
   const handleInputMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
@@ -20,7 +20,7 @@ const ChatFooter = ({ socket }: SocketProps) => {
       socket.emit('sendMessage', {
         language: 'en',
         message,
-        roomId,
+        chatRoomId,
         staffId: Cookies.get('accessToken'),
       });
     setMessage('');

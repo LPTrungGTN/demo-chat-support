@@ -6,7 +6,7 @@ import { RoleEnum } from '@utils/Enums/RoleEnum';
 
 interface Props {
   contact: ContactInterface;
-  onClick: (roomId: string) => void;
+  onClick: (chatRoomId: string) => void;
   accessToken: string;
 }
 
@@ -14,7 +14,7 @@ const Contact = ({ contact, onClick, accessToken }: Props) => {
   const {
     createdAt,
     message: { content, staffId },
-    roomId,
+    chatRoomId,
   } = contact;
 
   const shouldShowIndicator = () => {
@@ -24,11 +24,11 @@ const Contact = ({ contact, onClick, accessToken }: Props) => {
 
   return (
     <div
-      key={roomId}
+      key={chatRoomId}
       className='flex justify-between items-center p-3 hover:bg-gray-800 rounded-lg relative'
-      onClick={() => onClick(roomId)}
+      onClick={() => onClick(chatRoomId)}
     >
-      <p className='text-white text-2xl font-bold w-1/6'>{roomId}</p>
+      <p className='text-white text-2xl font-bold w-1/6'>{chatRoomId}</p>
       <div className='text-sm font-bold w-2/3'>
         <p className='truncate text-slate-500'>{content}</p>
       </div>

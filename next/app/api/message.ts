@@ -12,10 +12,10 @@ interface MessageResponse {
 }
 
 export const listByRoomId = async (
-  roomId: string,
+  chatRoomId: string,
 ): Promise<MessageResponse> => {
   const response = await axios.get<MessageResponse>(
-    `${BASE_URL}/messages/${roomId}`,
+    `${BASE_URL}/messages/${chatRoomId}`,
   );
   return response.data;
 };

@@ -14,15 +14,15 @@ import { MessageService } from './message.service';
 export class MessageController {
   constructor(private readonly service: MessageService) {}
 
-  @Get(':roomId')
+  @Get(':chatRoomId')
   public async show(
-    @Param('roomId') roomId: string,
+    @Param('chatRoomId') chatRoomId: string,
     @Res() res: Response,
   ): Promise<Response> {
-    const numericRoomId = Number(roomId.trim());
-    if (isNaN(numericRoomId)) throw new BadRequestException();
+    const numericChatRoomId = Number(chatRoomId.trim());
+    if (isNaN(numericChatRoomId)) throw new BadRequestException();
 
-    const messages = await this.service.listMsgByRoomId(numericRoomId);
+    const messages = await this.service.listMsgByChatRoomId(numericChatRoomId);
     return res.status(HttpStatus.OK).json({ messages });
   }
 }

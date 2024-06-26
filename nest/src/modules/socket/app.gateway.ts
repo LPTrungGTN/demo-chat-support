@@ -13,6 +13,7 @@ import { Server, Socket } from 'socket.io';
 import { Language } from '@/common/enums/language';
 import { RoleEnum } from '@/common/enums/role';
 import { StaffStatus } from '@/common/enums/staffStatus';
+import { formatDateTime } from '@/common/util/date.utils';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
 import { MessageRepository } from '@/modules/message/message.repository';
 import { StaffRepository } from '@/modules/staff/staff.repository';
@@ -57,20 +58,22 @@ export class AppGateway
     client.join(String(id));
 
     this.io.to(client.id).emit('roomCreated', {
-      message: '',
-      roomId: id,
-      status: false,
-      timestamp: new Date().toISOString(),
+      chatRoomId: id,
+      createdAt: formatDateTime(),
+      message: {
+        content: '',
+        staffId: RoleEnum.USER,
+      },
     });
   }
 
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { roomId: string; staffId: string },
+    @MessageBody() data: { chatRoomId: string; staffId: string },
   ) {
-    const { roomId, staffId } = data;
-    const numericRoomId = Number(roomId);
+    const { chatRoomId, staffId } = data;
+    const numericRoomId = Number(chatRoomId);
     const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
 
     if (!chatRoom) {
@@ -79,8 +82,8 @@ export class AppGateway
       });
     }
 
-    client.join(roomId);
-    this.io.to(roomId).emit('staffJoined', { roomId, staffId });
+    client.join(chatRoomId);
+    this.io.to(chatRoomId).emit('staffJoined', { chatRoomId, staffId });
     await this.chatRoomRepository.assignStaffToRoom(
       Number(staffId),
       numericRoomId,
@@ -90,13 +93,15 @@ export class AppGateway
   @SubscribeMessage('sendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { message: string; roomId: string; staffId?: string },
+    @MessageBody()
+    data: { chatRoomId: string; message: string; staffId?: string },
   ) {
-    const timestamp = new Date().toISOString();
-    const { message, roomId, staffId } = data;
-    if (message === 'staff') {
+    const createdAt = formatDateTime();
+    const { chatRoomId, message, staffId } = data;
+
+    if (message === 'staff' && staffId === RoleEnum.USER) {
       const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
-        Number(roomId),
+        Number(chatRoomId),
       );
 
       if (!chatRoom) {
@@ -117,16 +122,18 @@ export class AppGateway
 
       await this.chatRoomRepository.assignStaffToRoom(staff.id, chatRoom.id);
       this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
-        message: message,
-        roomId: chatRoom.id,
-        status: true,
-        timestamp,
+        chatRoomId: chatRoom.id,
+        createdAt,
+        message: {
+          content: message,
+          staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
+        },
       });
     }
 
-    this.io.to(roomId).emit('newMessage', {
-      chatRoomId: Number(roomId),
-      createdAt: timestamp,
+    this.io.to(chatRoomId).emit('newMessage', {
+      chatRoomId: Number(chatRoomId),
+      createdAt,
       message: {
         content: message,
         staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
@@ -134,7 +141,7 @@ export class AppGateway
     });
 
     await this.messageRepository.create({
-      chatRoomId: Number(roomId),
+      chatRoomId: Number(chatRoomId),
       content: message,
       staffId: staffId === RoleEnum.USER ? null : Number(staffId),
     });

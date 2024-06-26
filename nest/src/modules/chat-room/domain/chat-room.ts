@@ -2,13 +2,13 @@ import { Message } from './message';
 
 export class ChatRoom {
   constructor(
-    private readonly roomId: number,
+    private readonly chatRoomId: number,
     private readonly message: Message,
     private readonly createdAt: string,
   ) {}
 
-  public get getRoomId(): number {
-    return this.roomId;
+  public get getChatRoomId(): number {
+    return this.chatRoomId;
   }
 
   public get getMessage(): Message {
