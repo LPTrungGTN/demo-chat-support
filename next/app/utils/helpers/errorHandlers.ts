@@ -13,7 +13,7 @@ export const displayError = (error: any) => {
       if (typeof message === 'string') {
         toast.error(message);
       } else {
-        message.forEach((message: string) => {
+        message.message.forEach((message: string) => {
           toast.error(message);
         });
       }
