@@ -13,6 +13,7 @@ import MessageComponent from './messageComponent';
 
 const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
+  const [role, setRole] = useState<string>('');
 
   const { messages, setChatRoomId, setMessages } = useChatContext();
   useEffect(() => {
@@ -38,6 +39,7 @@ const ChatBody = ({ socket }: SocketProps) => {
     setAccessToken(
       accessToken === RoleEnum.USER ? accessToken : Number(accessToken),
     );
+    setRole(Cookies.get('role')!);
   }, []);
 
   return (
@@ -47,7 +49,13 @@ const ChatBody = ({ socket }: SocketProps) => {
 
         const senderId =
           staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId);
-        const isOwnMessage = senderId === accessToken;
+        let isOwnMessage;
+        if (role === RoleEnum.USER) {
+          isOwnMessage = senderId === accessToken;
+        } else {
+          isOwnMessage = senderId.toString() !== RoleEnum.USER;
+        }
+
         return <MessageComponent msg={content} isOwnMessage={isOwnMessage} />;
       })}
     </div>
