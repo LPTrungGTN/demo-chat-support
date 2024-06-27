@@ -74,7 +74,7 @@ model ChatRoom {
 
     messages   Message[]
     staffs     Staff?    @relation(fields: [staffId], references: [id])
-    categories Category  @relation(fields: [categoryId], references: [id])
+    categories Category  @relation(fields: [categoryId], references: [id]) 
 
     @@map("chatRooms")
 }
