@@ -43,7 +43,7 @@ const ChatBody = ({ socket }: SocketProps) => {
   return (
     <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) => {
-        const { content, staffId } = msg;
+        const { content, id, staffId } = msg;
 
         let isOwnMessage;
         if (role === RoleEnum.USER) {
@@ -52,7 +52,13 @@ const ChatBody = ({ socket }: SocketProps) => {
           isOwnMessage = staffId !== RoleEnum.USER;
         }
 
-        return <MessageComponent msg={content} isOwnMessage={isOwnMessage} />;
+        return (
+          <MessageComponent
+            key={id}
+            msg={content}
+            isOwnMessage={isOwnMessage}
+          />
+        );
       })}
     </div>
   );
