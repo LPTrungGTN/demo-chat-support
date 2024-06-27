@@ -51,7 +51,8 @@ export class AppGateway
   @SubscribeMessage('createRoom')
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { categoryId: number; language: Language },
+    @MessageBody()
+    data: { categoryId: number; happinessId: string; language: Language },
   ) {
     const chatRoom = await this.chatRoomRepository.create(data);
     const { id } = chatRoom;
@@ -116,7 +117,7 @@ export class AppGateway
         chatRoom.categoryId,
       );
 
-      if (!staff || staff.staffCategorys.length === 0 || !staff.staffStatus) {
+      if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
         return this.io.to(client.id).emit('error', {
           message: 'No staff available to join the chat room.',
         });
@@ -128,7 +129,7 @@ export class AppGateway
         createdAt,
         message: {
           content: message,
-          staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
+          staffId: staffId,
         },
       });
     }
@@ -138,14 +139,14 @@ export class AppGateway
       createdAt,
       message: {
         content: message,
-        staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
+        staffId: staffId,
       },
     });
 
     await this.messageRepository.create({
       chatRoomId: Number(chatRoomId),
       content: message,
-      staffId: staffId === RoleEnum.USER ? null : Number(staffId),
+      staffId: staffId === RoleEnum.USER ? null : staffId,
     });
 
     this.io.emit('updateContact');
@@ -158,7 +159,7 @@ export class AppGateway
   ) {
     try {
       await this.staffStatusRepository.upsert(
-        Number(data.staffId),
+        data.staffId,
         StaffStatus.ACTIVE,
         client.id,
       );

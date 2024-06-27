@@ -14,6 +14,7 @@ export class ChatRoomRepository {
 
   public async create(data: {
     categoryId: number;
+    happinessId: string;
     language: string;
   }): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.create({
@@ -23,7 +24,17 @@ export class ChatRoomRepository {
 
   public async findAvailableRoomById(id: number): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.findFirst({
-      where: { id, staffId: null },
+      include: {
+        chatRoomUsers: true,
+      },
+      where: {
+        chatRoomUsers: {
+          some: {
+            staffId: null,
+          },
+        },
+        id,
+      },
     });
   }
 
@@ -34,45 +45,51 @@ export class ChatRoomRepository {
   }
 
   public async assignStaffToRoom(
-    staffId: number,
-    id: number,
-  ): Promise<ChatRoomPrisma> {
-    return await this.prisma.chatRoom.update({
-      data: { staffId },
-      where: { id },
+    staffId: string,
+    chatRoomId: number,
+  ): Promise<void> {
+    await this.prisma.chatRoomUser.create({
+      data: {
+        chatRoomId,
+        staffId,
+      },
     });
   }
 
-  public async listAllByStaffId(
-    staffId: number | undefined,
-  ): Promise<ChatRoom[]> {
-    const chatRooms = await this.prisma.chatRoom.findMany({
+  public async listAllByStaffId(staffId: string): Promise<ChatRoom[]> {
+    const chatRoomUsers = await this.prisma.chatRoomUser.findMany({
       include: {
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          select: {
-            content: true,
-            createdAt: true,
-            staffId: true,
+        chatRooms: {
+          include: {
+            messages: {
+              orderBy: { createdAt: 'desc' },
+              select: {
+                content: true,
+                createdAt: true,
+                staffId: true,
+              },
+              take: 1,
+            },
           },
-          take: 1,
         },
       },
       where: { staffId },
     });
 
-    const sortedChatRooms = chatRooms.sort((a, b) => {
-      const dateA = a.messages[0]?.createdAt || new Date(0);
-      const dateB = b.messages[0]?.createdAt || new Date(0);
+    const sortedChatRooms = chatRoomUsers.sort((a, b) => {
+      const dateA = a.chatRooms.messages[0]?.createdAt || new Date(0);
+      const dateB = b.chatRooms.messages[0]?.createdAt || new Date(0);
       return dateB.getTime() - dateA.getTime();
     });
 
-    return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
+    return sortedChatRooms.map((chatRoomUser) =>
+      this.toDomain(chatRoomUser.chatRooms),
+    );
   }
 
   public toDomain(
     chatRoom: ChatRoomPrisma & {
-      messages: { content: string; createdAt: Date; staffId: number }[];
+      messages: { content: string; createdAt: Date; staffId: string }[];
     },
   ): ChatRoom {
     const { id, messages } = chatRoom;

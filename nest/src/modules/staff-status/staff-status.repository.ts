@@ -8,7 +8,7 @@ export class StaffStatusRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   public async upsert(
-    staffId: number,
+    staffId: string,
     status: number,
     clientId: string = '',
   ): Promise<StaffStatus> {

@@ -12,7 +12,7 @@ export class MessageRepository {
   public async create(data: {
     chatRoomId: number;
     content: string;
-    staffId?: number | null;
+    staffId?: string | null;
   }): Promise<MessagePrisma> {
     return await this.prisma.message.create({
       data,
