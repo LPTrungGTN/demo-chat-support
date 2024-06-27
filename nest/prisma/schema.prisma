@@ -14,21 +14,21 @@ datasource db {
 }
 
 model Staff {
-    id        Int      @id @default(autoincrement())
+    id        String   @id @default(uuid())
     username  String   @unique
     password  String
     createdAt DateTime @default(now()) @map("created_at")
 
-    staffStatus    StaffStatus?
-    staffCategorys StaffCategory[]
-    chatRooms      ChatRoom[]
-    messages       Message[]
+    staffStatus     StaffStatus?
+    staffCategories StaffCategory[]
+    messages        Message[]
+    chatRoomUser    ChatRoomUser[]
 
     @@map("staffs")
 }
 
 model StaffStatus {
-    staffId            Int      @id @map("staff_id")
+    staffId            String   @id @map("staff_id")
     clientId           String?  @map("client_id") // client_id is the socket id
     maxActiveChats     Int      @map("max_active_chats")
     currentActiveChats Int      @map("current_active_chats")
@@ -45,15 +45,15 @@ model Category {
     name        String
     description String
 
-    staffCategorys StaffCategory[]
-    chatRooms      ChatRoom[]
+    staffCategories StaffCategory[]
+    chatRooms       ChatRoom[]
 
     @@map("categories")
 }
 
 model StaffCategory {
-    staffId    Int @map("staff_id")
-    categoryId Int @map("category_id")
+    staffId    String @map("staff_id")
+    categoryId Int    @map("category_id")
 
     staff    Staff    @relation(fields: [staffId], references: [id])
     category Category @relation(fields: [categoryId], references: [id])
@@ -63,29 +63,42 @@ model StaffCategory {
 }
 
 model ChatRoom {
-    id         Int       @id @default(autoincrement())
-    staffId    Int?      @map("staff_id")
-    categoryId Int       @map("category_id")
-    language   String
-    status     String    @default("open")
-    rating     Int?
-    createdAt  DateTime  @default(now()) @map("created_at")
-    updatedAt  DateTime? @updatedAt @map("updated_at")
+    id          Int       @id @default(autoincrement())
+    happinessId String    @map("happiness_id")
+    categoryId  Int       @map("category_id")
+    language    String
+    status      String    @default("open")
+    rating      Int?
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime? @updatedAt @map("updated_at")
 
-    messages   Message[]
-    staffs     Staff?    @relation(fields: [staffId], references: [id])
-    categories Category  @relation(fields: [categoryId], references: [id]) 
+    messages      Message[]
+    categories    Category       @relation(fields: [categoryId], references: [id])
+    chatRoomUsers ChatRoomUser[]
 
     @@map("chatRooms")
 }
 
+model ChatRoomUser {
+    chatRoomId Int      @map("chat_room_id")
+    staffId    String   @map("staff_id")
+    createdAt  DateTime @default(now()) @map("created_at")
+
+    chatRooms ChatRoom @relation(fields: [chatRoomId], references: [id])
+    staffs    Staff?   @relation(fields: [staffId], references: [id])
+
+    @@id([chatRoomId, staffId])
+    @@map("chatRoomUsers")
+}
+
 model Message {
-    id         Int       @id @default(autoincrement())
-    content    String
-    staffId    Int?      @map("staff_id")
-    chatRoomId Int       @map("chat_room_id")
-    createdAt  DateTime  @default(now()) @map("created_at")
-    updatedAt  DateTime? @updatedAt @map("updated_at")
+    id          Int       @id @default(autoincrement())
+    content     String
+    staffId     String?   @map("staff_id")
+    chatRoomId  Int       @map("chat_room_id")
+    happinessId String?   @map("happiness_id")
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime? @updatedAt @map("updated_at")
 
     staffs    Staff?   @relation(fields: [staffId], references: [id])
     chatRooms ChatRoom @relation(fields: [chatRoomId], references: [id])
