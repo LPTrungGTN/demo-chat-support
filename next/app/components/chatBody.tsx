@@ -36,9 +36,7 @@ const ChatBody = ({ socket }: SocketProps) => {
 
   useEffect(() => {
     const accessToken = Cookies.get('accessToken')!;
-    setAccessToken(
-      accessToken === RoleEnum.USER ? accessToken : Number(accessToken),
-    );
+    setAccessToken(accessToken);
     setRole(Cookies.get('role')!);
   }, []);
 
@@ -47,13 +45,11 @@ const ChatBody = ({ socket }: SocketProps) => {
       {messages.map((msg) => {
         const { content, staffId } = msg;
 
-        const senderId =
-          staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId);
         let isOwnMessage;
         if (role === RoleEnum.USER) {
-          isOwnMessage = senderId === accessToken;
+          isOwnMessage = staffId === accessToken;
         } else {
-          isOwnMessage = senderId.toString() !== RoleEnum.USER;
+          isOwnMessage = staffId !== RoleEnum.USER;
         }
 
         return <MessageComponent msg={content} isOwnMessage={isOwnMessage} />;
