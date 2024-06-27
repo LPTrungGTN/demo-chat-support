@@ -3,20 +3,19 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { ContactInterface } from '@api/chatRoom';
 import { RoleEnum } from '@utils/Enums/RoleEnum';
-import { useState } from 'react';
 
 interface Props {
-  contact: ContactInterface;
-  onClick: (chatRoomId: string) => void;
   accessToken: string;
+  contact: ContactInterface;
   isSelected: boolean;
+  onClick: (chatRoomId: string) => void;
 }
 
-const Contact = ({ contact, onClick, accessToken, isSelected }: Props) => {
+const Contact = ({ accessToken, contact, isSelected, onClick }: Props) => {
   const {
+    chatRoomId,
     createdAt,
     message: { content, staffId },
-    chatRoomId,
   } = contact;
 
   const shouldShowIndicator = () => {
@@ -39,7 +38,9 @@ const Contact = ({ contact, onClick, accessToken, isSelected }: Props) => {
       </p>
       {shouldShowIndicator() ? (
         <div className='bg-blue-700 w-3 h-3 rounded-full flex flex-shrink-0 hidden md:block group-hover:block'></div>
-      ) : null}
+      ) : (
+        <div className='w-3 h-3'></div>
+      )}
     </div>
   );
 };
