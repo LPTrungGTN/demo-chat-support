@@ -143,11 +143,13 @@ export class AppGateway
       },
     });
 
-    await this.messageRepository.create({
+    const newMessage = {
       chatRoomId: Number(chatRoomId),
       content: message,
-      staffId: staffId === RoleEnum.USER ? null : staffId,
-    });
+      happinessId: staffId === RoleEnum.USER ? staffId : null,
+      staffId: staffId !== RoleEnum.USER ? staffId : null,
+    };
+    await this.messageRepository.create(newMessage);
 
     this.io.emit('updateContact');
   }
