@@ -13,7 +13,14 @@ export class ChatRoomController {
     @Query() query: ListChatRoomQueryDto,
     @Res() res: Response,
   ): Promise<Response> {
-    const rooms = await this.service.listAllByStaffId(query.staffId);
+    const rooms = await this.service.listRoom(query.staffId);
+
     return res.status(HttpStatus.OK).json({ rooms });
+  }
+
+  @Get('seed')
+  public async seed(@Res() res: Response): Promise<Response> {
+    await this.service.seed();
+    return res.status(HttpStatus.OK).json({ message: 'Seeded' });
   }
 }
