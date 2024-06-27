@@ -30,8 +30,8 @@ model Staff {
 model StaffStatus {
     staffId            String   @id @map("staff_id")
     clientId           String?  @map("client_id") // client_id is the socket id
-    maxActiveChats     Int      @map("max_active_chats")
-    currentActiveChats Int      @map("current_active_chats")
+    maxActiveChats     Int      @default(10) @map("max_active_chats")
+    currentActiveChats Int      @default(0) @map("current_active_chats")
     status             Int      @default(0)
     updatedAt          DateTime @updatedAt @map("updated_at")
 

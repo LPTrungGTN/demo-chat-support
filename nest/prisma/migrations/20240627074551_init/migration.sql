@@ -12,8 +12,8 @@ CREATE TABLE "staffs" (
 CREATE TABLE "staffStatus" (
     "staff_id" TEXT NOT NULL,
     "client_id" TEXT,
-    "max_active_chats" INTEGER NOT NULL,
-    "current_active_chats" INTEGER NOT NULL,
+    "max_active_chats" INTEGER NOT NULL DEFAULT 10,
+    "current_active_chats" INTEGER NOT NULL DEFAULT 0,
     "status" INTEGER NOT NULL DEFAULT 0,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
