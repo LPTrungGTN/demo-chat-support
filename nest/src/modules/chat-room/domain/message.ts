@@ -1,11 +1,12 @@
 export class Message {
   constructor(
     private readonly content: string,
-    private readonly staffId: number | string,
+    private readonly staffId: string,
     private readonly id: number,
+    private readonly happinessId: string,
   ) {}
 
-  public get getStaffId(): number | string {
+  public get getStaffId(): string {
     return this.staffId;
   }
 
@@ -15,5 +16,9 @@ export class Message {
 
   public get getId(): number {
     return this.id;
+  }
+
+  public get getHappinessId(): string {
+    return this.happinessId;
   }
 }
