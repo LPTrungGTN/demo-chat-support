@@ -2,7 +2,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ContactInterface } from '@api/chatRoom';
-import { RoleEnum } from '@utils/Enums/RoleEnum';
 
 interface Props {
   accessToken: string;
@@ -19,8 +18,7 @@ const Contact = ({ accessToken, contact, isSelected, onClick }: Props) => {
   } = contact;
 
   const shouldShowIndicator = () => {
-    if (staffId === RoleEnum.USER) return staffId !== accessToken;
-    return staffId.toString() !== accessToken;
+    return staffId !== accessToken;
   };
 
   return (
