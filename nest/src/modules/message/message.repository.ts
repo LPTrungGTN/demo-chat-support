@@ -11,6 +11,7 @@ export class MessageRepository {
   public async create(data: {
     chatRoomId: number;
     content: string;
+    happinessId?: string | null;
     staffId?: string | null;
   }): Promise<MessagePrisma> {
     return await this.prisma.message.create({
@@ -26,6 +27,8 @@ export class MessageRepository {
       select: {
         content: true,
         createdAt: true,
+        happinessId: true,
+        id: true,
         staffId: true,
       },
       where: {
@@ -37,6 +40,7 @@ export class MessageRepository {
   }
 
   private toDomain(message: MessagePrisma): Message {
-    return new Message(message.content, message.staffId, message.id);
+    const { content, happinessId, id, staffId } = message;
+    return new Message(content, staffId, id, happinessId);
   }
 }
