@@ -2,15 +2,14 @@ import axios from 'axios';
 
 import { RoleEnum } from '@/app/utils/Enums/RoleEnum';
 
+import { Message } from './message';
+
 const BASE_URL = process.env.BASE_URL;
 
 export interface ContactInterface {
   chatRoomId: string;
   createdAt: string;
-  message: {
-    content: string;
-    staffId: number | string;
-  };
+  message: Message;
 }
 
 interface RoomResponse {
