@@ -43,11 +43,11 @@ const ChatBody = ({ socket }: SocketProps) => {
   return (
     <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) => {
-        const { content, id, staffId } = msg;
+        const { content, happinessId, id, staffId } = msg;
 
         let isOwnMessage;
         if (role === RoleEnum.USER) {
-          isOwnMessage = staffId === accessToken;
+          isOwnMessage = happinessId === accessToken;
         } else {
           isOwnMessage = staffId !== RoleEnum.USER;
         }
