@@ -134,22 +134,24 @@ export class AppGateway
       });
     }
 
-    this.io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: Number(chatRoomId),
-      createdAt,
-      message: {
-        content: message,
-        staffId: staffId,
-      },
-    });
-
     const newMessage = {
       chatRoomId: Number(chatRoomId),
       content: message,
       happinessId: staffId === RoleEnum.USER ? staffId : null,
       staffId: staffId !== RoleEnum.USER ? staffId : null,
     };
-    await this.messageRepository.create(newMessage);
+    const result = await this.messageRepository.create(newMessage);
+
+    this.io.to(chatRoomId).emit('newMessage', {
+      chatRoomId: Number(chatRoomId),
+      createdAt,
+      message: {
+        content: message,
+        happinessId: staffId === RoleEnum.USER ? staffId : null,
+        id: result.id,
+        staffId: staffId !== RoleEnum.USER ? staffId : null,
+      },
+    });
 
     this.io.emit('updateContact');
   }
