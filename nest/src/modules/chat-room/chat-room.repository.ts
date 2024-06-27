@@ -44,7 +44,7 @@ export class ChatRoomRepository {
     });
   }
 
-  public async assignStaffToRoom(
+  public async createChatRoomUser(
     staffId: string,
     chatRoomId: number,
   ): Promise<void> {
@@ -66,6 +66,7 @@ export class ChatRoomRepository {
               select: {
                 content: true,
                 createdAt: true,
+                id: true,
                 staffId: true,
               },
               take: 1,
@@ -87,19 +88,54 @@ export class ChatRoomRepository {
     );
   }
 
+  public async listByHappenessId(happinessId: string): Promise<ChatRoom[]> {
+    const chatRooms = await this.prisma.chatRoom.findMany({
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          select: {
+            content: true,
+            createdAt: true,
+            id: true,
+            staffId: true,
+          },
+          take: 1,
+        },
+      },
+      where: { happinessId },
+    });
+
+    const sortedChatRooms = chatRooms.sort((a, b) => {
+      const dateA = a.messages[0]?.createdAt || new Date(0);
+      const dateB = b.messages[0]?.createdAt || new Date(0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
+  }
+
   public toDomain(
     chatRoom: ChatRoomPrisma & {
-      messages: { content: string; createdAt: Date; staffId: string }[];
+      messages: {
+        content: string;
+        createdAt: Date;
+        id: number;
+        staffId: string;
+      }[];
     },
   ): ChatRoom {
     const { id, messages } = chatRoom;
     if (messages.length === 0)
-      return new ChatRoom(id, new Message('', RoleEnum.USER), '');
+      return new ChatRoom(
+        id,
+        new Message('', RoleEnum.USER, messages[0].id),
+        '',
+      );
 
     const { content, createdAt, staffId } = messages[0];
     return new ChatRoom(
       id,
-      new Message(content ?? '', staffId ?? RoleEnum.USER),
+      new Message(content ?? '', staffId, messages[0].id),
       createdAt ? formatDateTime(createdAt) : '',
     );
   }
