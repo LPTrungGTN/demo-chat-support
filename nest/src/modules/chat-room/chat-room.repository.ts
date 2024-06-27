@@ -66,6 +66,7 @@ export class ChatRoomRepository {
               select: {
                 content: true,
                 createdAt: true,
+                happinessId: true,
                 id: true,
                 staffId: true,
               },
@@ -96,6 +97,7 @@ export class ChatRoomRepository {
           select: {
             content: true,
             createdAt: true,
+            happinessId: true,
             id: true,
             staffId: true,
           },
@@ -119,6 +121,7 @@ export class ChatRoomRepository {
       messages: {
         content: string;
         createdAt: Date;
+        happinessId: string;
         id: number;
         staffId: string;
       }[];
@@ -128,14 +131,19 @@ export class ChatRoomRepository {
     if (messages.length === 0)
       return new ChatRoom(
         id,
-        new Message('', RoleEnum.USER, messages[0].id),
+        new Message('', RoleEnum.USER, messages[0].id, messages[0].happinessId),
         '',
       );
 
     const { content, createdAt, staffId } = messages[0];
     return new ChatRoom(
       id,
-      new Message(content ?? '', staffId, messages[0].id),
+      new Message(
+        content ?? '',
+        staffId,
+        messages[0].id,
+        messages[0].happinessId,
+      ),
       createdAt ? formatDateTime(createdAt) : '',
     );
   }
