@@ -54,6 +54,12 @@ export class AppGateway
     @MessageBody()
     data: { categoryId: number; happinessId: string; language: Language },
   ) {
+    const { categoryId, happinessId, language } = data;
+    if (!categoryId || !happinessId || !language) {
+      return this.io.to(client.id).emit('error', {
+        message: 'send missing data to create a chat room.',
+      });
+    }
     const chatRoom = await this.chatRoomRepository.create(data);
     const { id } = chatRoom;
     client.join(String(id));
@@ -102,20 +108,11 @@ export class AppGateway
     const createdAt = formatDateTime();
     const { chatRoomId, message, staffId } = data;
 
+    console.log('chatRoomId', chatRoomId, message, staffId);
     if (message === 'staff' && staffId === RoleEnum.USER) {
-      const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
-        Number(chatRoomId),
-      );
-
-      if (!chatRoom) {
-        return this.io.to(client.id).emit('error', {
-          message: 'Chat room not found or you do not have permission to join.',
-        });
-      }
-
-      const staff = await this.staffRepository.findActiveStaffByCategory(
-        chatRoom.categoryId,
-      );
+      console.log('staff', staffId);
+      const staff = await this.staffRepository.findActiveStaffByCategory(7);
+      console.log('staff', staff);
 
       if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
         return this.io.to(client.id).emit('error', {
@@ -123,9 +120,12 @@ export class AppGateway
         });
       }
 
-      await this.chatRoomRepository.assignStaffToRoom(staff.id, chatRoom.id);
+      await this.chatRoomRepository.createChatRoomUser(
+        staff.id,
+        Number(chatRoomId),
+      );
       this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
-        chatRoomId: chatRoom.id,
+        chatRoomId: chatRoomId,
         createdAt,
         message: {
           content: message,
