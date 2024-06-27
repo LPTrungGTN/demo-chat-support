@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Message as MessagePrisma } from '@prisma/client';
 
-import { RoleEnum } from '@/common/enums/role';
 import { Message } from '@/modules/chat-room/domain/message';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
@@ -38,6 +37,6 @@ export class MessageRepository {
   }
 
   private toDomain(message: MessagePrisma): Message {
-    return new Message(message.content, message.staffId ?? RoleEnum.USER);
+    return new Message(message.content, message.staffId, message.id);
   }
 }
