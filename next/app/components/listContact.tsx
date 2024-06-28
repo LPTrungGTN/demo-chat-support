@@ -66,7 +66,7 @@ const ListContact = ({ socket }: SocketProps) => {
 
   const handleCreateRoom = async () => {
     socket.emit('createRoom', {
-      categoryId: 6,
+      categoryId: 2,
       happinessId: RoleEnum.USER,
       language: 'en',
     });
