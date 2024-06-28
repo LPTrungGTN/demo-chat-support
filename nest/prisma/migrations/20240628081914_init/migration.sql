@@ -41,9 +41,10 @@ CREATE TABLE "staffCategory" (
 CREATE TABLE "chatRooms" (
     "id" SERIAL NOT NULL,
     "happiness_id" TEXT NOT NULL,
+    "thread_id" TEXT,
     "category_id" INTEGER NOT NULL,
     "language" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'open',
+    "status" INTEGER NOT NULL DEFAULT 0,
     "rating" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
