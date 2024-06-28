@@ -11,13 +11,13 @@ import {
 import { Server, Socket } from 'socket.io';
 
 import { Language } from '@/common/enums/language';
-import { RoleEnum } from '@/common/enums/role';
+import { RoomStatus } from '@/common/enums/room-status';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { formatDateTime } from '@/common/util/date.utils';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
-import { GptService } from '@/modules/gpt/gpt.service';
-import { MessageRepository } from '@/modules/message/message.repository';
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
+
+import { SocketService } from './socket.service';
 
 @WebSocketGateway({ cors: true, namespace: '/chat', port: 3001 })
 export class AppGateway
@@ -26,8 +26,8 @@ export class AppGateway
   constructor(
     private readonly chatRoomRepository: ChatRoomRepository,
     private readonly staffStatusRepository: StaffStatusRepository,
-    private readonly messageRepository: MessageRepository,
-    private readonly gptService: GptService,
+
+    private readonly service: SocketService,
   ) {}
 
   @WebSocketServer() io: Server;
@@ -56,21 +56,23 @@ export class AppGateway
   ) {
     const { categoryId, happinessId, language } = data;
     if (!categoryId || !happinessId || !language) {
+      console.log('send missing data to create a chat room');
       return this.io.to(client.id).emit('error', {
         message: 'send missing data to create a chat room.',
       });
     }
-    const chatRoom = await this.chatRoomRepository.create(data);
+    const chatRoom = await this.chatRoomRepository.create({
+      categoryId,
+      happinessId,
+      language,
+      status: RoomStatus.Waiting,
+    });
     const { id } = chatRoom;
     client.join(String(id));
 
     this.io.to(client.id).emit('roomCreated', {
       chatRoomId: id,
       createdAt: formatDateTime(),
-      message: {
-        content: '',
-        staffId: RoleEnum.USER,
-      },
     });
   }
 
@@ -84,6 +86,7 @@ export class AppGateway
     const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
 
     if (!chatRoom) {
+      console.log('Chat room not found');
       return this.io.to(client.id).emit('error', {
         message: 'Chat room not found or you do not have permission to join.',
       });
@@ -99,71 +102,6 @@ export class AppGateway
     client.join(chatRoomId);
   }
 
-  //   @SubscribeMessage('sendMessage')
-  //   async handleMessage(
-  //     @ConnectedSocket() client: Socket,
-  //     @MessageBody()
-  //     data: { chatRoomId: string; message: string; staffId?: string },
-  //   ) {
-  //     const createdAt = formatDateTime();
-  //     const { chatRoomId, message, staffId } = data;
-  //     let staff;
-  //     const chatRoom = await this.chatRoomRepository.findById(Number(chatRoomId));
-
-  //     console.log('chatRoomId', chatRoomId, message, staffId);
-  //     if (message === 'staff' && staffId === RoleEnum.USER) {
-  //       staff = await this.staffRepository.findActiveStaffByCategory(
-  //         chatRoom.categoryId,
-  //       );
-  //       console.log('staff', staff);
-
-  //       if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
-  //         return this.io.to(client.id).emit('error', {
-  //           message: 'No staff available to join the chat room.',
-  //         });
-  //       }
-
-  //       await this.chatRoomRepository.createChatRoomUser(
-  //         staff.id,
-  //         Number(chatRoomId),
-  //       );
-  //     }
-
-  //     const newMessage = {
-  //       chatRoomId: Number(chatRoomId),
-  //       content: message,
-  //       happinessId: staffId === RoleEnum.USER ? staffId : null,
-  //       staffId: staffId !== RoleEnum.USER ? staffId : null,
-  //     };
-  //     const result = await this.messageRepository.create(newMessage);
-
-  //     this.io.to(chatRoomId).emit('newMessage', {
-  //       chatRoomId: Number(chatRoomId),
-  //       createdAt,
-  //       message: {
-  //         content: message,
-  //         happinessId: staffId === RoleEnum.USER ? staffId : null,
-  //         id: result.id,
-  //         staffId: staffId !== RoleEnum.USER ? staffId : null,
-  //       },
-  //     });
-
-  //     if (staff) {
-  //       this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
-  //         chatRoomId: chatRoomId,
-  //         createdAt,
-  //         message: {
-  //           content: message,
-  //           happinessId: staffId === RoleEnum.USER ? staffId : null,
-  //           id: result.id,
-  //           staffId: staffId !== RoleEnum.USER ? staffId : null,
-  //         },
-  //       });
-  //     }
-
-  //     this.io.emit('updateContact');
-  //   }
-
   @SubscribeMessage('userSendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
@@ -174,52 +112,59 @@ export class AppGateway
     const { chatRoomId, happinessId, message } = data;
     const numericRoomId = Number(chatRoomId);
 
-    const newMessage = await this.messageRepository.create({
-      chatRoomId: numericRoomId,
-      content: message,
-      happinessId: happinessId,
-    });
-
-    this.io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: numericRoomId,
+    await this.service.sendMessage(
+      message,
+      chatRoomId,
       createdAt,
-      message: {
-        content: message,
-        happinessId: happinessId,
-        id: newMessage.id,
-        staffId: null,
-      },
-    });
-
-    this.io.emit('updateContact');
+      this.io,
+      happinessId,
+    );
 
     const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
-    let threadId = chatRoom.threadId;
-    if (!threadId) {
-      threadId = await this.gptService.createThread();
-      await this.chatRoomRepository.addThreadId(numericRoomId, threadId);
+
+    switch (chatRoom.status) {
+      case RoomStatus.Waiting:
+        this.io.to(client.id).emit('waiting');
+        break;
+      case RoomStatus.GPT:
+        await this.service.handlerGptAnswer(
+          chatRoom,
+          message,
+          createdAt,
+          chatRoomId,
+          this.io,
+          client.id,
+        );
+        break;
+      case RoomStatus.STAFF:
+        await this.service.sendMsgToStaff(
+          chatRoom,
+          this.io,
+          client.id,
+          chatRoomId,
+          createdAt,
+        );
+        break;
     }
+  }
 
-    const gptAnwser = await this.gptService.getGptResponse(message, threadId);
+  @SubscribeMessage('staffSendMsg')
+  async handleStaffSendMsg(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: { chatRoomId: string; message: string; staffId: string },
+  ) {
+    const createdAt = formatDateTime();
+    const { chatRoomId, message, staffId } = data;
 
-    const gptMessage = await this.messageRepository.create({
-      chatRoomId: numericRoomId,
-      content: gptAnwser,
-      happinessId: null,
-      staffId: null,
-    });
-
-    this.io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: numericRoomId,
+    await this.service.sendMessage(
+      message,
+      chatRoomId,
       createdAt,
-      message: {
-        content: gptAnwser,
-        happinessId: null,
-        id: gptMessage.id,
-        staffId: null,
-      },
-    });
-    this.io.emit('updateContact');
+      this.io,
+      null,
+      staffId,
+    );
   }
 
   @SubscribeMessage('staffActive')
@@ -234,6 +179,7 @@ export class AppGateway
         client.id,
       );
     } catch (error) {
+      console.log('Error in handleStaffActive', error);
       this.io.to(client.id).emit('error', {
         message: 'Server error. Please try again later.',
       });
