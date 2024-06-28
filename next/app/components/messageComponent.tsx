@@ -7,9 +7,9 @@ type MessageProps = {
 
 const MessageComponent: FC<MessageProps> = ({ isOwnMessage, msg }) => {
   const ownMessageStyles =
-    'flex-row-reverse bg-blue-700 text-white rounded-t-full rounded-l-full';
+    'flex-row-reverse bg-blue-700 text-white rounded-t-md rounded-l-lg';
   const otherMessageStyles =
-    'bg-gray-800 text-gray-200 rounded-t-full rounded-r-full';
+    'bg-gray-800 text-gray-200 rounded-t-md rounded-r-lg';
 
   return (
     <div className={`flex flex-row justify-${isOwnMessage ? 'end' : 'start'}`}>
