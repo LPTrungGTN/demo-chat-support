@@ -3,8 +3,8 @@ import { Message } from './message';
 export class ChatRoom {
   constructor(
     private readonly chatRoomId: number,
-    private readonly message: Message,
     private readonly createdAt: string,
+    private readonly message?: Message,
   ) {}
 
   public get getChatRoomId(): number {
