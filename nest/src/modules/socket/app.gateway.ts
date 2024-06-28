@@ -172,15 +172,16 @@ export class AppGateway
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, happinessId, message } = data;
+    const numericRoomId = Number(chatRoomId);
 
     const newMessage = await this.messageRepository.create({
-      chatRoomId: Number(chatRoomId),
+      chatRoomId: numericRoomId,
       content: message,
       happinessId: happinessId,
     });
 
     this.io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: Number(chatRoomId),
+      chatRoomId: numericRoomId,
       createdAt,
       message: {
         content: message,
@@ -192,17 +193,24 @@ export class AppGateway
 
     this.io.emit('updateContact');
 
-    const gptAnwser = await this.gptService.getGptResponse(message);
+    const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
+    let threadId = chatRoom.threadId;
+    if (!threadId) {
+      threadId = await this.gptService.createThread();
+      await this.chatRoomRepository.addThreadId(numericRoomId, threadId);
+    }
+
+    const gptAnwser = await this.gptService.getGptResponse(message, threadId);
 
     const gptMessage = await this.messageRepository.create({
-      chatRoomId: Number(chatRoomId),
+      chatRoomId: numericRoomId,
       content: gptAnwser,
       happinessId: null,
       staffId: null,
     });
 
     this.io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: Number(chatRoomId),
+      chatRoomId: numericRoomId,
       createdAt,
       message: {
         content: gptAnwser,
@@ -211,6 +219,7 @@ export class AppGateway
         staffId: null,
       },
     });
+    this.io.emit('updateContact');
   }
 
   @SubscribeMessage('staffActive')
