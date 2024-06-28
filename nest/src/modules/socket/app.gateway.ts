@@ -107,11 +107,14 @@ export class AppGateway
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, message, staffId } = data;
+    let staff;
+    const chatRoom = await this.chatRoomRepository.findById(Number(chatRoomId));
 
     console.log('chatRoomId', chatRoomId, message, staffId);
     if (message === 'staff' && staffId === RoleEnum.USER) {
-      console.log('staff', staffId);
-      const staff = await this.staffRepository.findActiveStaffByCategory(7);
+      staff = await this.staffRepository.findActiveStaffByCategory(
+        chatRoom.categoryId,
+      );
       console.log('staff', staff);
 
       if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
@@ -124,14 +127,6 @@ export class AppGateway
         staff.id,
         Number(chatRoomId),
       );
-      this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
-        chatRoomId: chatRoomId,
-        createdAt,
-        message: {
-          content: message,
-          staffId: staffId,
-        },
-      });
     }
 
     const newMessage = {
@@ -141,6 +136,16 @@ export class AppGateway
       staffId: staffId !== RoleEnum.USER ? staffId : null,
     };
     const result = await this.messageRepository.create(newMessage);
+    this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
+      chatRoomId: chatRoomId,
+      createdAt,
+      message: {
+        content: message,
+        happinessId: staffId === RoleEnum.USER ? staffId : null,
+        id: result.id,
+        staffId: staffId !== RoleEnum.USER ? staffId : null,
+      },
+    });
 
     this.io.to(chatRoomId).emit('newMessage', {
       chatRoomId: Number(chatRoomId),
