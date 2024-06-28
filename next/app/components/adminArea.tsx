@@ -15,16 +15,15 @@ const AdminArea = () => {
   const socket = useMemo(() => createSocket('chat'), []);
 
   useEffect(() => {
-    const accessToken = Cookies.get('accessToken');
-    if (!accessToken || accessToken === RoleEnum.USER) return;
-    socket.emit('staffActive', { staffId: accessToken });
     socket.on('error', (data) => {
       toast.error(data.message);
     });
+  }, []);
 
-    return () => {
-      socket.off('error');
-    };
+  useEffect(() => {
+    const accessToken = Cookies.get('accessToken');
+    if (!accessToken || accessToken === RoleEnum.USER) return;
+    socket.emit('staffActive', { staffId: accessToken });
   }, []);
   return (
     <ChatProvider>

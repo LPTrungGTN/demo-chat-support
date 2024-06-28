@@ -27,10 +27,7 @@ const ListContact = ({ socket }: SocketProps) => {
     });
 
     socket.on('updateContact', async () => {
-      const token = Cookies.get('accessToken')!;
-      const dataBe = await listByStaffId(
-        token === RoleEnum.USER ? token : token,
-      );
+      const dataBe = await listByStaffId(Cookies.get('accessToken')!);
       setContacts(dataBe.rooms);
     });
 
@@ -44,14 +41,15 @@ const ListContact = ({ socket }: SocketProps) => {
   useEffect(() => {
     const getContacts = async () => {
       const token = Cookies.get('accessToken')!;
-      setAccessToken(token === RoleEnum.USER ? token : token);
-      const data = await listByStaffId(Cookies.get('accessToken')!);
+      console.log('token', token);
+      setAccessToken(token);
+      const data = await listByStaffId(token);
       setContacts(data.rooms);
     };
     if (contacts.length === 0) {
       getContacts().catch(console.error);
     }
-  });
+  }, [contacts.length]);
 
   const handleContactClick = async (chatRoomId: string) => {
     try {
@@ -65,7 +63,11 @@ const ListContact = ({ socket }: SocketProps) => {
   };
 
   const handleCreateRoom = async () => {
-    socket.emit('createRoom', { categoryId: 6, language: 'en' });
+    socket.emit('createRoom', {
+      categoryId: 7,
+      happinessId: RoleEnum.USER,
+      language: 'en',
+    });
   };
 
   return (

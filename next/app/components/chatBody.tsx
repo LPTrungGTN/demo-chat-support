@@ -13,6 +13,7 @@ import MessageComponent from './messageComponent';
 
 const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
+  const [role, setRole] = useState<string>('');
 
   const { messages, setChatRoomId, setMessages } = useChatContext();
   useEffect(() => {
@@ -35,20 +36,30 @@ const ChatBody = ({ socket }: SocketProps) => {
 
   useEffect(() => {
     const accessToken = Cookies.get('accessToken')!;
-    setAccessToken(
-      accessToken === RoleEnum.USER ? accessToken : Number(accessToken),
-    );
+    setAccessToken(accessToken);
+    setRole(Cookies.get('role')!);
   }, []);
 
   return (
     <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) => {
-        const { content, staffId } = msg;
+        const { content, happinessId, id, staffId } = msg;
+        console.log('msg', msg, 'accessToken', accessToken, 'role', role);
 
-        const senderId =
-          staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId);
-        const isOwnMessage = senderId === accessToken;
-        return <MessageComponent msg={content} isOwnMessage={isOwnMessage} />;
+        let isOwnMessage;
+        if (role === RoleEnum.USER) {
+          isOwnMessage = happinessId === accessToken;
+        } else {
+          isOwnMessage = !!staffId || !!(staffId && happinessId);
+        }
+
+        return (
+          <MessageComponent
+            key={id}
+            msg={content}
+            isOwnMessage={isOwnMessage}
+          />
+        );
       })}
     </div>
   );

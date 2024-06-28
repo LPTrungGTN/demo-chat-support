@@ -13,7 +13,7 @@ export class StaffService {
     private readonly staffStatusRepository: StaffStatusRepository,
   ) {}
 
-  public async login(request: LoginRequestDto): Promise<number> {
+  public async login(request: LoginRequestDto): Promise<string> {
     const { password, username } = request;
 
     const user = await this.repository.findStaff(password, username);
@@ -24,7 +24,7 @@ export class StaffService {
   }
 
   public async logout(token: string): Promise<void> {
-    const user = await this.repository.findById(Number(token));
+    const user = await this.repository.findById(token);
 
     if (!user) throw new UnauthorizedException('Invalid credentials');
 

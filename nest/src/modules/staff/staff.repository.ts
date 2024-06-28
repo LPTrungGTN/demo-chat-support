@@ -17,7 +17,7 @@ export class StaffRepository {
     });
   }
 
-  public async findById(id: number): Promise<Staff> {
+  public async findById(id: string): Promise<Staff> {
     return this.prisma.staff.findFirst({
       where: {
         id,
@@ -27,13 +27,13 @@ export class StaffRepository {
 
   public async findActiveStaffByCategory(categoryId: number): Promise<
     Staff & {
-      staffCategorys: StaffCategory[];
+      staffCategories: StaffCategory[];
       staffStatus?: StaffStatus;
     }
   > {
     return this.prisma.staff.findFirst({
       include: {
-        staffCategorys: {
+        staffCategories: {
           where: {
             categoryId: categoryId,
           },
@@ -41,7 +41,7 @@ export class StaffRepository {
         staffStatus: true,
       },
       where: {
-        staffCategorys: {
+        staffCategories: {
           some: {
             categoryId,
           },

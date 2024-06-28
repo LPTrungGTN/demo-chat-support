@@ -36,8 +36,13 @@ const FormLogin = () => {
     }
   };
 
-  const setLoginCookies = (accessToken: string, username?: string) => {
+  const setLoginCookies = (
+    accessToken: string,
+    role: string,
+    username?: string,
+  ) => {
     Cookies.set('accessToken', accessToken);
+    Cookies.set('role', role);
     if (username) {
       Cookies.set('username', username);
     }
@@ -46,7 +51,7 @@ const FormLogin = () => {
   const Login = async () => {
     try {
       const response = await login(password, username);
-      setLoginCookies(response.accessToken, username);
+      setLoginCookies(response.accessToken, RoleEnum.STAFF, username);
       redirectTo('/admin');
     } catch (error: any) {
       displayError(error);
@@ -54,7 +59,7 @@ const FormLogin = () => {
   };
 
   const LoginChat = async () => {
-    setLoginCookies(RoleEnum.USER);
+    setLoginCookies(RoleEnum.USER, RoleEnum.USER);
     redirectTo('/admin');
   };
 

@@ -51,8 +51,15 @@ export class AppGateway
   @SubscribeMessage('createRoom')
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { categoryId: number; language: Language },
+    @MessageBody()
+    data: { categoryId: number; happinessId: string; language: Language },
   ) {
+    const { categoryId, happinessId, language } = data;
+    if (!categoryId || !happinessId || !language) {
+      return this.io.to(client.id).emit('error', {
+        message: 'send missing data to create a chat room.',
+      });
+    }
     const chatRoom = await this.chatRoomRepository.create(data);
     const { id } = chatRoom;
     client.join(String(id));
@@ -100,53 +107,59 @@ export class AppGateway
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, message, staffId } = data;
+    let staff;
+    const chatRoom = await this.chatRoomRepository.findById(Number(chatRoomId));
 
+    console.log('chatRoomId', chatRoomId, message, staffId);
     if (message === 'staff' && staffId === RoleEnum.USER) {
-      const chatRoom = await this.chatRoomRepository.findAvailableRoomById(
-        Number(chatRoomId),
-      );
-
-      if (!chatRoom) {
-        return this.io.to(client.id).emit('error', {
-          message: 'Chat room not found or you do not have permission to join.',
-        });
-      }
-
-      const staff = await this.staffRepository.findActiveStaffByCategory(
+      staff = await this.staffRepository.findActiveStaffByCategory(
         chatRoom.categoryId,
       );
+      console.log('staff', staff);
 
-      if (!staff || staff.staffCategorys.length === 0 || !staff.staffStatus) {
+      if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
         return this.io.to(client.id).emit('error', {
           message: 'No staff available to join the chat room.',
         });
       }
 
-      await this.chatRoomRepository.assignStaffToRoom(staff.id, chatRoom.id);
-      this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
-        chatRoomId: chatRoom.id,
-        createdAt,
-        message: {
-          content: message,
-          staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
-        },
-      });
+      await this.chatRoomRepository.createChatRoomUser(
+        staff.id,
+        Number(chatRoomId),
+      );
     }
+
+    const newMessage = {
+      chatRoomId: Number(chatRoomId),
+      content: message,
+      happinessId: staffId === RoleEnum.USER ? staffId : null,
+      staffId: staffId !== RoleEnum.USER ? staffId : null,
+    };
+    const result = await this.messageRepository.create(newMessage);
 
     this.io.to(chatRoomId).emit('newMessage', {
       chatRoomId: Number(chatRoomId),
       createdAt,
       message: {
         content: message,
-        staffId: staffId === RoleEnum.USER ? RoleEnum.USER : Number(staffId),
+        happinessId: staffId === RoleEnum.USER ? staffId : null,
+        id: result.id,
+        staffId: staffId !== RoleEnum.USER ? staffId : null,
       },
     });
 
-    await this.messageRepository.create({
-      chatRoomId: Number(chatRoomId),
-      content: message,
-      staffId: staffId === RoleEnum.USER ? null : Number(staffId),
-    });
+    if (staff) {
+      this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
+        chatRoomId: chatRoomId,
+        createdAt,
+        message: {
+          content: message,
+          happinessId: staffId === RoleEnum.USER ? staffId : null,
+          id: result.id,
+          staffId: staffId !== RoleEnum.USER ? staffId : null,
+        },
+      });
+    }
 
     this.io.emit('updateContact');
   }
@@ -158,7 +171,7 @@ export class AppGateway
   ) {
     try {
       await this.staffStatusRepository.upsert(
-        Number(data.staffId),
+        data.staffId,
         StaffStatus.ACTIVE,
         client.id,
       );
