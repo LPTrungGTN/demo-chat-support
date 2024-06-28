@@ -15,8 +15,8 @@ import { RoleEnum } from '@/common/enums/role';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { formatDateTime } from '@/common/util/date.utils';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
+import { GptService } from '@/modules/gpt/gpt.service';
 import { MessageRepository } from '@/modules/message/message.repository';
-import { StaffRepository } from '@/modules/staff/staff.repository';
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
 @WebSocketGateway({ cors: true, namespace: '/chat', port: 3001 })
@@ -25,9 +25,9 @@ export class AppGateway
 {
   constructor(
     private readonly chatRoomRepository: ChatRoomRepository,
-    private readonly staffRepository: StaffRepository,
     private readonly staffStatusRepository: StaffStatusRepository,
     private readonly messageRepository: MessageRepository,
+    private readonly gptService: GptService,
   ) {}
 
   @WebSocketServer() io: Server;
@@ -99,69 +99,118 @@ export class AppGateway
     client.join(chatRoomId);
   }
 
-  @SubscribeMessage('sendMessage')
+  //   @SubscribeMessage('sendMessage')
+  //   async handleMessage(
+  //     @ConnectedSocket() client: Socket,
+  //     @MessageBody()
+  //     data: { chatRoomId: string; message: string; staffId?: string },
+  //   ) {
+  //     const createdAt = formatDateTime();
+  //     const { chatRoomId, message, staffId } = data;
+  //     let staff;
+  //     const chatRoom = await this.chatRoomRepository.findById(Number(chatRoomId));
+
+  //     console.log('chatRoomId', chatRoomId, message, staffId);
+  //     if (message === 'staff' && staffId === RoleEnum.USER) {
+  //       staff = await this.staffRepository.findActiveStaffByCategory(
+  //         chatRoom.categoryId,
+  //       );
+  //       console.log('staff', staff);
+
+  //       if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
+  //         return this.io.to(client.id).emit('error', {
+  //           message: 'No staff available to join the chat room.',
+  //         });
+  //       }
+
+  //       await this.chatRoomRepository.createChatRoomUser(
+  //         staff.id,
+  //         Number(chatRoomId),
+  //       );
+  //     }
+
+  //     const newMessage = {
+  //       chatRoomId: Number(chatRoomId),
+  //       content: message,
+  //       happinessId: staffId === RoleEnum.USER ? staffId : null,
+  //       staffId: staffId !== RoleEnum.USER ? staffId : null,
+  //     };
+  //     const result = await this.messageRepository.create(newMessage);
+
+  //     this.io.to(chatRoomId).emit('newMessage', {
+  //       chatRoomId: Number(chatRoomId),
+  //       createdAt,
+  //       message: {
+  //         content: message,
+  //         happinessId: staffId === RoleEnum.USER ? staffId : null,
+  //         id: result.id,
+  //         staffId: staffId !== RoleEnum.USER ? staffId : null,
+  //       },
+  //     });
+
+  //     if (staff) {
+  //       this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
+  //         chatRoomId: chatRoomId,
+  //         createdAt,
+  //         message: {
+  //           content: message,
+  //           happinessId: staffId === RoleEnum.USER ? staffId : null,
+  //           id: result.id,
+  //           staffId: staffId !== RoleEnum.USER ? staffId : null,
+  //         },
+  //       });
+  //     }
+
+  //     this.io.emit('updateContact');
+  //   }
+
+  @SubscribeMessage('userSendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { chatRoomId: string; message: string; staffId?: string },
+    data: { chatRoomId: string; happinessId: string; message: string },
   ) {
     const createdAt = formatDateTime();
-    const { chatRoomId, message, staffId } = data;
-    let staff;
-    const chatRoom = await this.chatRoomRepository.findById(Number(chatRoomId));
+    const { chatRoomId, happinessId, message } = data;
 
-    console.log('chatRoomId', chatRoomId, message, staffId);
-    if (message === 'staff' && staffId === RoleEnum.USER) {
-      staff = await this.staffRepository.findActiveStaffByCategory(
-        chatRoom.categoryId,
-      );
-      console.log('staff', staff);
-
-      if (!staff || staff.staffCategories.length === 0 || !staff.staffStatus) {
-        return this.io.to(client.id).emit('error', {
-          message: 'No staff available to join the chat room.',
-        });
-      }
-
-      await this.chatRoomRepository.createChatRoomUser(
-        staff.id,
-        Number(chatRoomId),
-      );
-    }
-
-    const newMessage = {
+    const newMessage = await this.messageRepository.create({
       chatRoomId: Number(chatRoomId),
       content: message,
-      happinessId: staffId === RoleEnum.USER ? staffId : null,
-      staffId: staffId !== RoleEnum.USER ? staffId : null,
-    };
-    const result = await this.messageRepository.create(newMessage);
+      happinessId: happinessId,
+    });
 
     this.io.to(chatRoomId).emit('newMessage', {
       chatRoomId: Number(chatRoomId),
       createdAt,
       message: {
         content: message,
-        happinessId: staffId === RoleEnum.USER ? staffId : null,
-        id: result.id,
-        staffId: staffId !== RoleEnum.USER ? staffId : null,
+        happinessId: happinessId,
+        id: newMessage.id,
+        staffId: null,
       },
     });
 
-    if (staff) {
-      this.io.to(staff.staffStatus.clientId).emit('newCustomer', {
-        chatRoomId: chatRoomId,
-        createdAt,
-        message: {
-          content: message,
-          happinessId: staffId === RoleEnum.USER ? staffId : null,
-          id: result.id,
-          staffId: staffId !== RoleEnum.USER ? staffId : null,
-        },
-      });
-    }
-
     this.io.emit('updateContact');
+
+    const gptAnwser = await this.gptService.getGptResponse(message);
+
+    const gptMessage = await this.messageRepository.create({
+      chatRoomId: Number(chatRoomId),
+      content: gptAnwser,
+      happinessId: null,
+      staffId: null,
+    });
+
+    this.io.to(chatRoomId).emit('newMessage', {
+      chatRoomId: Number(chatRoomId),
+      createdAt,
+      message: {
+        content: gptAnwser,
+        happinessId: null,
+        id: gptMessage.id,
+        staffId: null,
+      },
+    });
   }
 
   @SubscribeMessage('staffActive')
