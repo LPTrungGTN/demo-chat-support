@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
+import { RoleEnum } from '@/common/enums/role';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
 import { ChatRoomRepository } from './chat-room.repository';
 import { ChatRoom } from './domain/chat-room';
+import { ListChatRoomQueryDto } from './dto/list-chat-room-query.dto';
 
 @Injectable()
 export class ChatRoomService {
@@ -12,12 +14,13 @@ export class ChatRoomService {
     private readonly prisma: PrismaService,
   ) {}
 
-  public async listRoom(id: string): Promise<ChatRoom[]> {
-    let rooms = await this.repository.listAllByStaffId(id);
-    if (rooms.length === 0) {
-      rooms = await this.repository.listByHappenessId(id);
+  public async listRoom(query: ListChatRoomQueryDto): Promise<ChatRoom[]> {
+    const { id, role } = query;
+    if (role === RoleEnum.USER) {
+      return await this.repository.listByHappenessId(id);
     }
-    return rooms;
+
+    return await this.repository.listAllByStaffId(id);
   }
 
   public async seed(): Promise<void> {
