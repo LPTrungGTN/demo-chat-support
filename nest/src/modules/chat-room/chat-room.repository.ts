@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ChatRoom as ChatRoomPrisma } from '@prisma/client';
 
-import { RoleEnum } from '@/common/enums/role';
 import { formatDateTime } from '@/common/util/date.utils';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
@@ -112,6 +111,7 @@ export class ChatRoomRepository {
       const dateB = b.messages[0]?.createdAt || new Date(0);
       return dateB.getTime() - dateA.getTime();
     });
+    console.log(sortedChatRooms);
 
     return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
   }
@@ -128,23 +128,18 @@ export class ChatRoomRepository {
     },
   ): ChatRoom {
     const { id, messages } = chatRoom;
-    if (messages.length === 0)
-      return new ChatRoom(
-        id,
-        new Message('', RoleEnum.USER, messages[0].id, messages[0].happinessId),
-        '',
-      );
+    if (messages.length === 0) return new ChatRoom(id, '');
 
     const { content, createdAt, staffId } = messages[0];
     return new ChatRoom(
       id,
+      createdAt ? formatDateTime(createdAt) : '',
       new Message(
         content ?? '',
         staffId,
         messages[0].id,
         messages[0].happinessId,
       ),
-      createdAt ? formatDateTime(createdAt) : '',
     );
   }
 }
