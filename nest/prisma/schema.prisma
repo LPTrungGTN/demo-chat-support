@@ -65,6 +65,7 @@ model StaffCategory {
 model ChatRoom {
     id          Int       @id @default(autoincrement())
     happinessId String    @map("happiness_id")
+    threadId    String?   @map("thread_id")
     categoryId  Int       @map("category_id")
     language    String
     status      String    @default("open")
