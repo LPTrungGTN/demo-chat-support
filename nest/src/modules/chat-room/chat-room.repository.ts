@@ -29,6 +29,7 @@ export class ChatRoomRepository {
     categoryId: number;
     happinessId: string;
     language: string;
+    status: number;
   }): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.create({
       data,
@@ -127,6 +128,15 @@ export class ChatRoomRepository {
     });
 
     return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
+  }
+
+  public async updateStatus(status: number, id: number): Promise<void> {
+    await this.prisma.chatRoom.update({
+      data: {
+        status,
+      },
+      where: { id },
+    });
   }
 
   public toDomain(
