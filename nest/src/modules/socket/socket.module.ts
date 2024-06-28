@@ -7,6 +7,7 @@ import { StaffRepository } from '@/modules/staff/staff.repository';
 import { StaffStatusRepository } from '@/modules/staff-status/staff-status.repository';
 
 import { AppGateway } from './app.gateway';
+import { SocketService } from './socket.service';
 
 @Module({
   exports: [AppGateway],
@@ -17,6 +18,7 @@ import { AppGateway } from './app.gateway';
     StaffStatusRepository,
     MessageRepository,
     GptService,
+    SocketService,
   ],
 })
 export class SocketModule {}
