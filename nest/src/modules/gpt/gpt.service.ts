@@ -16,17 +16,24 @@ export class GptService {
     this.openai = new OpenAI({ apiKey: this.apiKey });
   }
 
-  public async getGptResponse(question: string): Promise<string> {
+  public async getGptResponse(
+    question: string,
+    threadId: string,
+  ): Promise<string> {
     try {
-      const thread = await this.openai.beta.threads.create();
-      await this.postMessage(thread.id, question);
-      const runResponse = await this.createRun(thread.id);
-      await this.waitForRunCompletion(thread.id, runResponse.id);
-      return this.collectResponses(thread.id);
+      await this.postMessage(threadId, question);
+      const runResponse = await this.createRun(threadId);
+      await this.waitForRunCompletion(threadId, runResponse.id);
+      return this.collectResponses(threadId);
     } catch (error) {
       console.error('Error getting response from GPT:', error);
       throw error;
     }
+  }
+
+  public async createThread(): Promise<string> {
+    const thread = await this.openai.beta.threads.create();
+    return thread.id;
   }
 
   private async postMessage(threadId: string, content: string) {
@@ -53,16 +60,15 @@ export class GptService {
   private async collectResponses(threadId: string): Promise<string> {
     const messagesResponse =
       await this.openai.beta.threads.messages.list(threadId);
-    const assistantResponses = messagesResponse.data.filter(
+    const firstAssistantResponse = messagesResponse.data.find(
       (msg) => msg.role === GptMessageRole.Assistant,
     );
-    return assistantResponses
-      .map((msg) =>
-        msg.content
-          .map((contentItem) =>
-            contentItem.type === 'text' ? contentItem.text.value : '',
-          )
-          .join('\n'),
+
+    if (!firstAssistantResponse) return '';
+
+    return firstAssistantResponse.content
+      .map((contentItem) =>
+        contentItem.type === 'text' ? contentItem.text.value : '',
       )
       .join('\n');
   }
