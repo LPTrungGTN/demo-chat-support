@@ -7,6 +7,8 @@ import { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { useChatContext } from '@/app/contexts/chatContext';
 import { SocketProps } from '@/app/utils/hooks/useSocket';
 
+import { RoleEnum } from '../utils/Enums/RoleEnum';
+
 const ChatFooter = ({ socket }: SocketProps) => {
   const [message, setMessage] = useState('');
   const { chatRoomId } = useChatContext();
@@ -16,13 +18,16 @@ const ChatFooter = ({ socket }: SocketProps) => {
   };
 
   const handleSendMessage = () => {
-    if (socket)
-      socket.emit('sendMessage', {
+    console.log('handleSendMessage: ', Cookies.get('role'));
+    if (Cookies.get('role')! === RoleEnum.USER) {
+      socket.emit('userSendMessage', {
         chatRoomId,
+        happinessId: Cookies.get('accessToken'),
         language: 'en',
         message,
-        staffId: Cookies.get('accessToken'),
       });
+    }
+
     setMessage('');
   };
 
