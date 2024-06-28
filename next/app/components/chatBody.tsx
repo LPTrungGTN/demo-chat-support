@@ -18,7 +18,7 @@ const ChatBody = ({ socket }: SocketProps) => {
   const { messages, setChatRoomId, setMessages } = useChatContext();
   useEffect(() => {
     const handleNewMessage = (data: ContactInterface) => {
-      setMessages((prev) => [...prev, data.message]);
+      setMessages((prev) => [...prev, data.message!]);
     };
 
     const handleRoomCreated = (data: ContactInterface) => {
@@ -50,7 +50,7 @@ const ChatBody = ({ socket }: SocketProps) => {
         if (role === RoleEnum.USER) {
           isOwnMessage = happinessId === accessToken;
         } else {
-          isOwnMessage = !!staffId || !!(staffId && happinessId);
+          isOwnMessage = !!staffId || (!staffId && !happinessId);
         }
 
         return (
