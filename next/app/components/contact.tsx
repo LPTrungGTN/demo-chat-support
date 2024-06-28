@@ -11,12 +11,14 @@ interface Props {
 }
 
 const Contact = ({ accessToken, contact, isSelected, onClick }: Props) => {
-  const {
-    chatRoomId,
-    createdAt,
-    message: { content, staffId },
-  } = contact;
+  const { chatRoomId, createdAt, message } = contact;
+  let content = '';
+  let staffId = '';
 
+  if (message) {
+    content = message.content;
+    staffId = message.staffId;
+  }
   const shouldShowIndicator = () => {
     return staffId !== accessToken;
   };
