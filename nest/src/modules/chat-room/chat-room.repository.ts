@@ -11,6 +11,20 @@ import { Message } from './domain/message';
 export class ChatRoomRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  public async addThreadId(
+    chatRoomId: number,
+    threadId: string,
+  ): Promise<void> {
+    await this.prisma.chatRoom.update({
+      data: {
+        threadId,
+      },
+      where: {
+        id: chatRoomId,
+      },
+    });
+  }
+
   public async create(data: {
     categoryId: number;
     happinessId: string;
@@ -18,6 +32,18 @@ export class ChatRoomRepository {
   }): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.create({
       data,
+    });
+  }
+
+  public async createChatRoomUser(
+    staffId: string,
+    chatRoomId: number,
+  ): Promise<void> {
+    await this.prisma.chatRoomUser.create({
+      data: {
+        chatRoomId,
+        staffId,
+      },
     });
   }
 
@@ -40,18 +66,6 @@ export class ChatRoomRepository {
   public async findById(id: number): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.findFirst({
       where: { id },
-    });
-  }
-
-  public async createChatRoomUser(
-    staffId: string,
-    chatRoomId: number,
-  ): Promise<void> {
-    await this.prisma.chatRoomUser.create({
-      data: {
-        chatRoomId,
-        staffId,
-      },
     });
   }
 
@@ -111,7 +125,6 @@ export class ChatRoomRepository {
       const dateB = b.messages[0]?.createdAt || new Date(0);
       return dateB.getTime() - dateA.getTime();
     });
-    console.log(sortedChatRooms);
 
     return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
   }
