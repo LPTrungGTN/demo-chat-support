@@ -10,7 +10,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-import { Language } from '@/common/enums/language';
 import { RoleEnum } from '@/common/enums/role';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { formatDateTime } from '@/common/util/date.utils';
@@ -52,10 +51,10 @@ export class AppGateway
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { categoryId: number; happinessId: string; language: Language },
+    data: { happinessId: string },
   ) {
-    const { categoryId, happinessId, language } = data;
-    if (!categoryId || !happinessId || !language) {
+    const { happinessId } = data;
+    if (!happinessId) {
       return this.io.to(client.id).emit('error', {
         message: 'send missing data to create a chat room.',
       });
