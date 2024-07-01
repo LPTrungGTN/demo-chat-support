@@ -12,8 +12,14 @@ import { SocketProps } from '@/app/utils/hooks/useSocket';
 import Contact from './contact';
 
 const ListContact = ({ socket }: SocketProps) => {
-  const { chatRoomId, contacts, setChatRoomId, setContacts, setMessages } =
-    useChatContext();
+  const {
+    chatRoomId,
+    contacts,
+    setChatRoomId,
+    setContacts,
+    setLanguage,
+    setMessages,
+  } = useChatContext();
   const [accessToken, setAccessToken] = useState<string>('');
 
   useEffect(() => {
@@ -56,6 +62,10 @@ const ListContact = ({ socket }: SocketProps) => {
       const data = await listByRoomId(chatRoomId);
       setChatRoomId(chatRoomId);
       setMessages(data.messages);
+      const selectedContact = contacts.find(
+        (contact) => contact.chatRoomId === chatRoomId,
+      );
+      setLanguage(selectedContact!.language);
       socket.emit('joinRoom', { chatRoomId });
     } catch (error) {
       console.error(error);
@@ -64,9 +74,7 @@ const ListContact = ({ socket }: SocketProps) => {
 
   const handleCreateRoom = async () => {
     socket.emit('createRoom', {
-      categoryId: 7,
       happinessId: RoleEnum.USER,
-      language: 'en',
     });
   };
 
