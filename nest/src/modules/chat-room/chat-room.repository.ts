@@ -12,11 +12,7 @@ import { Message } from './domain/message';
 export class ChatRoomRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async create(data: {
-    categoryId: number;
-    happinessId: string;
-    language: string;
-  }): Promise<ChatRoomPrisma> {
+  public async create(data: { happinessId: string }): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.create({
       data,
     });
@@ -116,6 +112,19 @@ export class ChatRoomRepository {
     return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
   }
 
+  public async updateCategoryAndLanguage(
+    data: {
+      categoryId: number;
+      language: string;
+    },
+    id: number,
+  ): Promise<void> {
+    await this.prisma.chatRoom.update({
+      data,
+      where: { id },
+    });
+  }
+
   public toDomain(
     chatRoom: ChatRoomPrisma & {
       messages: {
@@ -127,12 +136,14 @@ export class ChatRoomRepository {
       }[];
     },
   ): ChatRoom {
-    const { id, messages } = chatRoom;
+    const { categoryId, id, language, messages } = chatRoom;
     if (messages.length === 0)
       return new ChatRoom(
         id,
         new Message('', RoleEnum.USER, messages[0].id, messages[0].happinessId),
         '',
+        language,
+        categoryId || null,
       );
 
     const { content, createdAt, staffId } = messages[0];
@@ -145,6 +156,8 @@ export class ChatRoomRepository {
         messages[0].happinessId,
       ),
       createdAt ? formatDateTime(createdAt) : '',
+      language,
+      categoryId || null,
     );
   }
 }
