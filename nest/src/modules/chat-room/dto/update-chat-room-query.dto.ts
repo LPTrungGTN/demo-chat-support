@@ -1,9 +1,9 @@
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class UpdateChatRoomBodyDto {
   @IsString()
   language: string;
 
-  @IsString()
+  @IsNumber()
   categoryId: number;
 }
