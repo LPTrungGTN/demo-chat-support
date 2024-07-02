@@ -26,9 +26,7 @@ export class ChatRoomRepository {
   }
 
   public async create(data: {
-    categoryId: number;
     happinessId: string;
-    language: string;
     status: number;
   }): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.create({

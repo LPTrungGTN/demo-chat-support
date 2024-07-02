@@ -10,7 +10,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-import { Language } from '@/common/enums/language';
 import { RoomStatus } from '@/common/enums/room-status';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { formatDateTime } from '@/common/util/date.utils';
@@ -52,19 +51,16 @@ export class AppGateway
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { categoryId: number; happinessId: string; language: Language },
+    data: { happinessId: string },
   ) {
-    const { categoryId, happinessId, language } = data;
-    if (!categoryId || !happinessId || !language) {
-      console.log('send missing data to create a chat room');
+    const { happinessId } = data;
+    if (!happinessId) {
       return this.io.to(client.id).emit('error', {
         message: 'send missing data to create a chat room.',
       });
     }
     const chatRoom = await this.chatRoomRepository.create({
-      categoryId,
       happinessId,
-      language,
       status: RoomStatus.Waiting,
     });
     const { id } = chatRoom;
@@ -86,7 +82,6 @@ export class AppGateway
     const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
 
     if (!chatRoom) {
-      console.log('Chat room not found');
       return this.io.to(client.id).emit('error', {
         message: 'Chat room not found or you do not have permission to join.',
       });

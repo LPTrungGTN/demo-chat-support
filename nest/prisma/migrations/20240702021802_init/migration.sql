@@ -42,8 +42,8 @@ CREATE TABLE "chatRooms" (
     "id" SERIAL NOT NULL,
     "happiness_id" TEXT NOT NULL,
     "thread_id" TEXT,
-    "category_id" INTEGER NOT NULL,
-    "language" TEXT NOT NULL,
+    "category_id" INTEGER,
+    "language" TEXT,
     "status" INTEGER NOT NULL DEFAULT 0,
     "rating" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -87,7 +87,7 @@ ALTER TABLE "staffCategory" ADD CONSTRAINT "staffCategory_staff_id_fkey" FOREIGN
 ALTER TABLE "staffCategory" ADD CONSTRAINT "staffCategory_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "chatRooms" ADD CONSTRAINT "chatRooms_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "chatRooms" ADD CONSTRAINT "chatRooms_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "chatRoomUsers" ADD CONSTRAINT "chatRoomUsers_chat_room_id_fkey" FOREIGN KEY ("chat_room_id") REFERENCES "chatRooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
