@@ -75,7 +75,7 @@ export class AppGateway
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { chatRoomId: string; staffId: string },
+    @MessageBody() data: { chatRoomId: number; staffId: string },
   ) {
     const { chatRoomId } = data;
     const numericRoomId = Number(chatRoomId);
@@ -94,18 +94,17 @@ export class AppGateway
       }
     });
 
-    client.join(chatRoomId);
+    client.join(chatRoomId.toString());
   }
 
   @SubscribeMessage('userSendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { chatRoomId: string; happinessId: string; message: string },
+    data: { chatRoomId: number; happinessId: string; message: string },
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, happinessId, message } = data;
-    const numericRoomId = Number(chatRoomId);
 
     await this.service.sendMessage(
       message,
@@ -115,7 +114,7 @@ export class AppGateway
       happinessId,
     );
 
-    const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
+    const chatRoom = await this.chatRoomRepository.findById(chatRoomId);
 
     switch (chatRoom.status) {
       case RoomStatus.Waiting:
@@ -135,7 +134,6 @@ export class AppGateway
           chatRoom,
           this.io,
           client.id,
-          chatRoomId,
           createdAt,
         );
         break;
@@ -146,7 +144,7 @@ export class AppGateway
   async handleStaffSendMsg(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { chatRoomId: string; message: string; staffId: string },
+    data: { chatRoomId: number; message: string; staffId: string },
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, message, staffId } = data;

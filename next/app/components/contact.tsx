@@ -7,7 +7,7 @@ interface Props {
   accessToken: string;
   contact: ContactInterface;
   isSelected: boolean;
-  onClick: (chatRoomId: string) => void;
+  onClick: (chatRoomId: number) => void;
 }
 
 const Contact = ({ accessToken, contact, isSelected, onClick }: Props) => {

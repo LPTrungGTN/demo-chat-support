@@ -22,23 +22,21 @@ export class SocketService {
 
   public async sendMessage(
     message: string,
-    chatRoomId: string,
+    chatRoomId: number,
     createdAt: string,
     io: Server,
     happinessId?: string,
     staffId?: string,
   ): Promise<void> {
-    const numericRoomId = Number(chatRoomId);
-
     const newMessage = await this.messageRepository.create({
-      chatRoomId: numericRoomId,
+      chatRoomId: chatRoomId,
       content: message,
       happinessId,
       staffId,
     });
 
-    io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: numericRoomId,
+    io.to(chatRoomId.toString()).emit('newMessage', {
+      chatRoomId,
       createdAt,
       message: {
         content: message,
@@ -63,20 +61,22 @@ export class SocketService {
       await this.chatRoomRepository.addThreadId(roomId, threadId);
     }
 
-    const gptAnwser = await this.gptService.getGptResponse(message, threadId);
+    const msgSendGpt = `anwser by ${getLanguageName(chatRoom.language)}: ${message}`;
+    const gptAnwser = await this.gptService.getGptResponse(
+      msgSendGpt,
+      threadId,
+    );
     const find = gptAnwser.search('0824444444');
 
     if (find === -1) {
-      const msgSendGpt = `anwser by ${getLanguageName(chatRoom.language)}: ${gptAnwser}`;
       const gptMessage = await this.messageRepository.create({
         chatRoomId: roomId,
-        content: msgSendGpt,
+        content: gptAnwser,
         happinessId: null,
         staffId: null,
       });
 
       io.to(roomId.toString()).emit('newMessage', {
-        chatRoomId: roomId,
         createdAt,
         message: {
           content: gptAnwser,
@@ -84,6 +84,7 @@ export class SocketService {
           id: gptMessage.id,
           staffId: null,
         },
+        roomId,
       });
       return io.emit('updateContact');
     }
@@ -119,7 +120,6 @@ export class SocketService {
     chatRoom: ChatRoom,
     io: Server,
     clientId: string,
-    roomId: string,
     createdAt: string,
   ) {
     const staff = await this.staffRepository.findActiveStaffByCategory(
@@ -134,7 +134,7 @@ export class SocketService {
     }
 
     io.to(staff.staffStatus.clientId).emit('newCustomer', {
-      chatRoomId: roomId,
+      chatRoomId: chatRoom.id,
       createdAt,
     });
     io.emit('updateContact');

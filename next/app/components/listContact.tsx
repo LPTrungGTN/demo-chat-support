@@ -59,7 +59,7 @@ const ListContact = ({ socket }: SocketProps) => {
     }
   }, [contacts.length]);
 
-  const handleContactClick = async (chatRoomId: string) => {
+  const handleContactClick = async (chatRoomId: number) => {
     try {
       const data = await listByRoomId(chatRoomId);
       const selectedContact = contacts.find(

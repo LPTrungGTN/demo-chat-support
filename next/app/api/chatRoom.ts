@@ -6,7 +6,7 @@ const BASE_URL = process.env.BASE_URL;
 
 export interface ContactInterface {
   categoryId: number;
-  chatRoomId: string;
+  chatRoomId: number;
   createdAt: string;
   language: string;
   message?: Message;
