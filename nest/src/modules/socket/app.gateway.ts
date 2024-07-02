@@ -61,7 +61,7 @@ export class AppGateway
     }
     const chatRoom = await this.chatRoomRepository.create({
       happinessId,
-      status: RoomStatus.Waiting,
+      status: RoomStatus.GPT,
     });
     const { id } = chatRoom;
     client.join(String(id));
