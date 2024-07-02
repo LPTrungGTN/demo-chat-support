@@ -137,6 +137,20 @@ export class ChatRoomRepository {
     });
   }
 
+  public async updateCategoryAndLanguage(
+    categoryId: number,
+    language: string,
+    id: number,
+  ): Promise<void> {
+    await this.prisma.chatRoom.update({
+      data: {
+        categoryId,
+        language,
+      },
+      where: { id },
+    });
+  }
+
   public toDomain(
     chatRoom: ChatRoomPrisma & {
       messages: {
@@ -148,13 +162,16 @@ export class ChatRoomRepository {
       }[];
     },
   ): ChatRoom {
-    const { id, messages } = chatRoom;
-    if (messages.length === 0) return new ChatRoom(id, '');
+    const { categoryId, id, language, messages } = chatRoom;
+    if (messages.length === 0)
+      return new ChatRoom(id, '', language, categoryId);
 
     const { content, createdAt, staffId } = messages[0];
     return new ChatRoom(
       id,
       createdAt ? formatDateTime(createdAt) : '',
+      language,
+      categoryId,
       new Message(
         content ?? '',
         staffId,
