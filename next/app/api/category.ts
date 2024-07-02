@@ -4,7 +4,7 @@ const BASE_URL = process.env.BASE_URL;
 
 export interface Category {
   description: string;
-  id: string;
+  id: number;
   name: string;
 }
 
