@@ -78,18 +78,20 @@ const ChatBox = ({ socket }: SocketProps) => {
                   />
                   {categories.map((category) => {
                     const { id, name } = category;
-                    <Button
-                      key={id}
-                      label={name}
-                      onClick={async () => {
-                        await updateCategoryAndLanguage(
-                          id,
-                          chatRoomId,
-                          languageSelect,
-                        );
-                        setLanguage(languageSelect);
-                      }}
-                    />;
+                    return (
+                      <Button
+                        key={id}
+                        label={name}
+                        onClick={async () => {
+                          await updateCategoryAndLanguage(
+                            id,
+                            chatRoomId,
+                            languageSelect,
+                          );
+                          setLanguage(languageSelect);
+                        }}
+                      />
+                    );
                   })}
                 </>
               ) : (
