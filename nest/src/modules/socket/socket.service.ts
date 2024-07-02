@@ -61,7 +61,7 @@ export class SocketService {
       await this.chatRoomRepository.addThreadId(roomId, threadId);
     }
 
-    const msgSendGpt = `anwser by ${getLanguageName(chatRoom.language)}: ${message}`;
+    const msgSendGpt = `${getLanguageName(chatRoom.language)} ${message}`;
     const gptAnwser = await this.gptService.getGptResponse(
       msgSendGpt,
       threadId,
