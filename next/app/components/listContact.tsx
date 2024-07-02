@@ -62,12 +62,13 @@ const ListContact = ({ socket }: SocketProps) => {
   const handleContactClick = async (chatRoomId: string) => {
     try {
       const data = await listByRoomId(chatRoomId);
-      setChatRoomId(chatRoomId);
-      setMessages(data.messages);
       const selectedContact = contacts.find(
         (contact) => contact.chatRoomId === chatRoomId,
       );
+
       setLanguage(selectedContact!.language);
+      setChatRoomId(chatRoomId);
+      setMessages(data.messages);
       socket.emit('joinRoom', { chatRoomId });
     } catch (error) {
       console.error(error);
