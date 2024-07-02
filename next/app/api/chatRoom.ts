@@ -28,7 +28,7 @@ export const listContact = async (
 
 export const updateCategoryAndLanguage = async (
   id: number,
-  chatRoomId: string,
+  chatRoomId: number,
   language: string,
 ) => {
   await axios.put(`${BASE_URL}/chat_rooms/${chatRoomId}`, {
