@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CategoryModule } from './modules/category/staff.module';
+import { CategoryModule } from './modules/category/category.module';
 import { ChatRoomModule } from './modules/chat-room/chat-room.module';
 import { GptModule } from './modules/gpt/gpt.module';
 import { MessageModule } from './modules/message/message.module';
