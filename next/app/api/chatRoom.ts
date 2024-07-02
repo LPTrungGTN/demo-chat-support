@@ -5,8 +5,10 @@ import { Message } from './message';
 const BASE_URL = process.env.BASE_URL;
 
 export interface ContactInterface {
+  categoryId: number;
   chatRoomId: string;
   createdAt: string;
+  language: string;
   message?: Message;
 }
 
@@ -22,4 +24,15 @@ export const listContact = async (
     `${BASE_URL}/chat_rooms?id=${id}&role=${role}`,
   );
   return response.data;
+};
+
+export const updateCategoryAndLanguage = async (
+  id: number,
+  chatRoomId: string,
+  language: string,
+) => {
+  await axios.put(`${BASE_URL}/chat_rooms/${chatRoomId}`, {
+    categoryId: id,
+    language,
+  });
 };
