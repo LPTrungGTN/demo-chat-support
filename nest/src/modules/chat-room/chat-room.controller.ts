@@ -13,7 +13,7 @@ export class ChatRoomController {
     @Query() query: ListChatRoomQueryDto,
     @Res() res: Response,
   ): Promise<Response> {
-    const rooms = await this.service.listRoom(query.staffId);
+    const rooms = await this.service.listRoom(query);
 
     return res.status(HttpStatus.OK).json({ rooms });
   }

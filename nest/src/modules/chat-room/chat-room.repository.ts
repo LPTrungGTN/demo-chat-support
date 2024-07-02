@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ChatRoom as ChatRoomPrisma } from '@prisma/client';
 
-import { RoleEnum } from '@/common/enums/role';
 import { formatDateTime } from '@/common/util/date.utils';
 import { PrismaService } from '@/modules/prisma/prisma.service';
 
@@ -12,13 +11,40 @@ import { Message } from './domain/message';
 export class ChatRoomRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  public async addThreadId(
+    chatRoomId: number,
+    threadId: string,
+  ): Promise<void> {
+    await this.prisma.chatRoom.update({
+      data: {
+        threadId,
+      },
+      where: {
+        id: chatRoomId,
+      },
+    });
+  }
+
   public async create(data: {
     categoryId: number;
     happinessId: string;
     language: string;
+    status: number;
   }): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.create({
       data,
+    });
+  }
+
+  public async createChatRoomUser(
+    staffId: string,
+    chatRoomId: number,
+  ): Promise<void> {
+    await this.prisma.chatRoomUser.create({
+      data: {
+        chatRoomId,
+        staffId,
+      },
     });
   }
 
@@ -41,18 +67,6 @@ export class ChatRoomRepository {
   public async findById(id: number): Promise<ChatRoomPrisma> {
     return await this.prisma.chatRoom.findFirst({
       where: { id },
-    });
-  }
-
-  public async createChatRoomUser(
-    staffId: string,
-    chatRoomId: number,
-  ): Promise<void> {
-    await this.prisma.chatRoomUser.create({
-      data: {
-        chatRoomId,
-        staffId,
-      },
     });
   }
 
@@ -116,6 +130,15 @@ export class ChatRoomRepository {
     return sortedChatRooms.map((chatRoom) => this.toDomain(chatRoom));
   }
 
+  public async updateStatus(status: number, id: number): Promise<void> {
+    await this.prisma.chatRoom.update({
+      data: {
+        status,
+      },
+      where: { id },
+    });
+  }
+
   public toDomain(
     chatRoom: ChatRoomPrisma & {
       messages: {
@@ -128,23 +151,18 @@ export class ChatRoomRepository {
     },
   ): ChatRoom {
     const { id, messages } = chatRoom;
-    if (messages.length === 0)
-      return new ChatRoom(
-        id,
-        new Message('', RoleEnum.USER, messages[0].id, messages[0].happinessId),
-        '',
-      );
+    if (messages.length === 0) return new ChatRoom(id, '');
 
     const { content, createdAt, staffId } = messages[0];
     return new ChatRoom(
       id,
+      createdAt ? formatDateTime(createdAt) : '',
       new Message(
         content ?? '',
         staffId,
         messages[0].id,
         messages[0].happinessId,
       ),
-      createdAt ? formatDateTime(createdAt) : '',
     );
   }
 }

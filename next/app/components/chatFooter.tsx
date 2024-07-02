@@ -1,6 +1,7 @@
 'use client';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { RoleEnum } from '@utils/Enums/RoleEnum';
 import Cookies from 'js-cookie';
 import { ChangeEvent, KeyboardEvent, useState } from 'react';
 
@@ -16,13 +17,22 @@ const ChatFooter = ({ socket }: SocketProps) => {
   };
 
   const handleSendMessage = () => {
-    if (socket)
-      socket.emit('sendMessage', {
+    const accessToken = Cookies.get('accessToken');
+    if (Cookies.get('role')! === RoleEnum.USER) {
+      socket.emit('userSendMessage', {
         chatRoomId,
+        happinessId: accessToken,
         language: 'en',
         message,
-        staffId: Cookies.get('accessToken'),
       });
+    } else {
+      socket.emit('staffSendMsg', {
+        chatRoomId,
+        happinessId: accessToken,
+        message,
+      });
+    }
+
     setMessage('');
   };
 
