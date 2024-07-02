@@ -140,7 +140,7 @@ export class ChatRoomRepository {
     if (messages.length === 0)
       return new ChatRoom(
         id,
-        new Message('', RoleEnum.USER, messages[0].id, messages[0].happinessId),
+        new Message('', null, null, RoleEnum.USER),
         '',
         language,
         categoryId || null,
