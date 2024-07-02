@@ -26,7 +26,7 @@ export const listByStaffId = async (staffId: string): Promise<RoomResponse> => {
 };
 
 export const updateCategoryAndLanguage = async (
-  categoryId: string,
+  categoryId: number,
   chatRoomId: string,
   language: string,
 ) => {
