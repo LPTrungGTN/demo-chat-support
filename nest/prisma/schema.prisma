@@ -66,15 +66,15 @@ model ChatRoom {
     id          Int       @id @default(autoincrement())
     happinessId String    @map("happiness_id")
     threadId    String?   @map("thread_id")
-    categoryId  Int       @map("category_id")
-    language    String
+    categoryId  Int?      @map("category_id")
+    language    String?
     status      Int       @default(0)
     rating      Int?
     createdAt   DateTime  @default(now()) @map("created_at")
     updatedAt   DateTime? @updatedAt @map("updated_at")
 
     messages      Message[]
-    categories    Category       @relation(fields: [categoryId], references: [id])
+    categories    Category?      @relation(fields: [categoryId], references: [id])
     chatRoomUsers ChatRoomUser[]
 
     @@map("chatRooms")

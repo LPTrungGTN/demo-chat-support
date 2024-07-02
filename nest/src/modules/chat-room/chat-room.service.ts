@@ -6,6 +6,7 @@ import { PrismaService } from '@/modules/prisma/prisma.service';
 import { ChatRoomRepository } from './chat-room.repository';
 import { ChatRoom } from './domain/chat-room';
 import { ListChatRoomQueryDto } from './dto/list-chat-room-query.dto';
+import { UpdateChatRoomBodyDto } from './dto/update-chat-room-body.dto';
 
 @Injectable()
 export class ChatRoomService {
@@ -21,6 +22,14 @@ export class ChatRoomService {
     }
 
     return await this.repository.listAllByStaffId(id);
+  }
+
+  public async updateCategoryAndLanguage(
+    body: UpdateChatRoomBodyDto,
+    id: number,
+  ) {
+    const { categoryId, language } = body;
+    await this.repository.updateCategoryAndLanguage(categoryId, language, id);
   }
 
   public async seed(): Promise<void> {

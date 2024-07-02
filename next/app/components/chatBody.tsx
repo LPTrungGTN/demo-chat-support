@@ -15,22 +15,16 @@ const ChatBody = ({ socket }: SocketProps) => {
   const [accessToken, setAccessToken] = useState<string | number>('');
   const [role, setRole] = useState<string>('');
 
-  const { messages, setChatRoomId, setMessages } = useChatContext();
+  const { messages, setMessages } = useChatContext();
   useEffect(() => {
     const handleNewMessage = (data: ContactInterface) => {
       setMessages((prev) => [...prev, data.message!]);
     };
 
-    const handleRoomCreated = (data: ContactInterface) => {
-      setChatRoomId(data.chatRoomId);
-    };
-
     socket.on('newMessage', handleNewMessage);
-    socket.on('roomCreated', handleRoomCreated);
 
     return () => {
       socket.off('newMessage', handleNewMessage);
-      socket.off('roomCreated', handleRoomCreated);
     };
   }, []);
 
@@ -44,7 +38,6 @@ const ChatBody = ({ socket }: SocketProps) => {
     <div className='p-4 flex-1 overflow-y-scroll'>
       {messages.map((msg) => {
         const { content, happinessId, id, staffId } = msg;
-        console.log('msg', msg, 'accessToken', accessToken, 'role', role);
 
         let isOwnMessage;
         if (role === RoleEnum.USER) {

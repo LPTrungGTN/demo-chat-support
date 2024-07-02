@@ -10,7 +10,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-import { Language } from '@/common/enums/language';
 import { RoomStatus } from '@/common/enums/room-status';
 import { StaffStatus } from '@/common/enums/staffStatus';
 import { formatDateTime } from '@/common/util/date.utils';
@@ -52,20 +51,17 @@ export class AppGateway
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { categoryId: number; happinessId: string; language: Language },
+    data: { happinessId: string },
   ) {
-    const { categoryId, happinessId, language } = data;
-    if (!categoryId || !happinessId || !language) {
-      console.log('send missing data to create a chat room');
+    const { happinessId } = data;
+    if (!happinessId) {
       return this.io.to(client.id).emit('error', {
         message: 'send missing data to create a chat room.',
       });
     }
     const chatRoom = await this.chatRoomRepository.create({
-      categoryId,
       happinessId,
-      language,
-      status: RoomStatus.Waiting,
+      status: RoomStatus.GPT,
     });
     const { id } = chatRoom;
     client.join(String(id));
@@ -79,14 +75,13 @@ export class AppGateway
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { chatRoomId: string; staffId: string },
+    @MessageBody() data: { chatRoomId: number; staffId: string },
   ) {
     const { chatRoomId } = data;
     const numericRoomId = Number(chatRoomId);
     const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
 
     if (!chatRoom) {
-      console.log('Chat room not found');
       return this.io.to(client.id).emit('error', {
         message: 'Chat room not found or you do not have permission to join.',
       });
@@ -99,18 +94,17 @@ export class AppGateway
       }
     });
 
-    client.join(chatRoomId);
+    client.join(chatRoomId.toString());
   }
 
   @SubscribeMessage('userSendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { chatRoomId: string; happinessId: string; message: string },
+    data: { chatRoomId: number; happinessId: string; message: string },
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, happinessId, message } = data;
-    const numericRoomId = Number(chatRoomId);
 
     await this.service.sendMessage(
       message,
@@ -120,7 +114,7 @@ export class AppGateway
       happinessId,
     );
 
-    const chatRoom = await this.chatRoomRepository.findById(numericRoomId);
+    const chatRoom = await this.chatRoomRepository.findById(chatRoomId);
 
     switch (chatRoom.status) {
       case RoomStatus.Waiting:
@@ -131,7 +125,6 @@ export class AppGateway
           chatRoom,
           message,
           createdAt,
-          chatRoomId,
           this.io,
           client.id,
         );
@@ -141,7 +134,6 @@ export class AppGateway
           chatRoom,
           this.io,
           client.id,
-          chatRoomId,
           createdAt,
         );
         break;
@@ -152,7 +144,7 @@ export class AppGateway
   async handleStaffSendMsg(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { chatRoomId: string; message: string; staffId: string },
+    data: { chatRoomId: number; message: string; staffId: string },
   ) {
     const createdAt = formatDateTime();
     const { chatRoomId, message, staffId } = data;

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatRoom } from '@prisma/client';
 import { Server } from 'socket.io';
 
+import { getLanguageName } from '@/common/enums/language';
 import { RoomStatus } from '@/common/enums/room-status';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
 import { GptService } from '@/modules/gpt/gpt.service';
@@ -21,23 +22,21 @@ export class SocketService {
 
   public async sendMessage(
     message: string,
-    chatRoomId: string,
+    chatRoomId: number,
     createdAt: string,
     io: Server,
     happinessId?: string,
     staffId?: string,
   ): Promise<void> {
-    const numericRoomId = Number(chatRoomId);
-
     const newMessage = await this.messageRepository.create({
-      chatRoomId: numericRoomId,
+      chatRoomId: chatRoomId,
       content: message,
       happinessId,
       staffId,
     });
 
-    io.to(chatRoomId).emit('newMessage', {
-      chatRoomId: numericRoomId,
+    io.to(chatRoomId.toString()).emit('newMessage', {
+      chatRoomId,
       createdAt,
       message: {
         content: message,
@@ -52,19 +51,21 @@ export class SocketService {
     chatRoom: ChatRoom,
     message: string,
     createdAt: string,
-    chatRoomId: string,
     io: Server,
     clientId: string,
   ) {
     let threadId = chatRoom.threadId;
     const roomId = chatRoom.id;
-    const numericRoomId = Number(chatRoomId);
     if (!threadId) {
       threadId = await this.gptService.createThread();
       await this.chatRoomRepository.addThreadId(roomId, threadId);
     }
 
-    const gptAnwser = await this.gptService.getGptResponse(message, threadId);
+    const msgSendGpt = `${getLanguageName(chatRoom.language)} ${message}`;
+    const gptAnwser = await this.gptService.getGptResponse(
+      msgSendGpt,
+      threadId,
+    );
     const find = gptAnwser.search('0824444444');
 
     if (find === -1) {
@@ -75,8 +76,7 @@ export class SocketService {
         staffId: null,
       });
 
-      io.to(chatRoomId).emit('newMessage', {
-        chatRoomId: roomId,
+      io.to(roomId.toString()).emit('newMessage', {
         createdAt,
         message: {
           content: gptAnwser,
@@ -84,6 +84,7 @@ export class SocketService {
           id: gptMessage.id,
           staffId: null,
         },
+        roomId,
       });
       return io.emit('updateContact');
     }
@@ -101,8 +102,8 @@ export class SocketService {
 
     try {
       await Promise.all([
-        this.chatRoomRepository.createChatRoomUser(staff.id, numericRoomId),
-        this.chatRoomRepository.updateStatus(numericRoomId, RoomStatus.STAFF),
+        this.chatRoomRepository.createChatRoomUser(staff.id, roomId),
+        this.chatRoomRepository.updateStatus(roomId, RoomStatus.STAFF),
       ]);
     } catch (error) {
       console.log('Error in createChatRoomUser', error);
@@ -119,7 +120,6 @@ export class SocketService {
     chatRoom: ChatRoom,
     io: Server,
     clientId: string,
-    roomId: string,
     createdAt: string,
   ) {
     const staff = await this.staffRepository.findActiveStaffByCategory(
@@ -134,7 +134,7 @@ export class SocketService {
     }
 
     io.to(staff.staffStatus.clientId).emit('newCustomer', {
-      chatRoomId: roomId,
+      chatRoomId: chatRoom.id,
       createdAt,
     });
     io.emit('updateContact');
