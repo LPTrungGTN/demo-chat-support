@@ -12,14 +12,17 @@ import ChatHeader from './chatHeader';
 import MessageComponent from './messageComponent';
 
 const translations = [
-  { label: 'english', value: 'en' },
-  { label: 'japanese', value: 'ja' },
-  { label: 'vietnamese', value: 'vi' },
+  { label: 'English', value: 'en' },
+  { label: '日本語', value: 'ja' },
+  { label: 'Tiếng Việt', value: 'vi' },
 ];
 
 const ChatBox = ({ socket }: SocketProps) => {
   const { chatRoomId, language, setLanguage } = useChatContext();
-  const [languageSelect, setLanguageSelect] = useState('');
+  const [languageSelect, setLanguageSelect] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -33,11 +36,15 @@ const ChatBox = ({ socket }: SocketProps) => {
     })();
   }, []);
 
+  useEffect(() => {
+    setLanguageSelect(null);
+  }, [language]);
+
   const getContentMessage = () => {
-    switch (languageSelect) {
-      case 'Tiếng Việt':
+    switch (languageSelect?.value) {
+      case 'vi':
         return 'Bạn muốn trao đổi về vấn đề gì?';
-      case '日本語':
+      case 'ja':
         return 'どの内容を話し合いたいですか？';
       default:
         return 'What content do you want to discuss?';
@@ -57,7 +64,7 @@ const ChatBox = ({ socket }: SocketProps) => {
           {chatRoomId && (
             <>
               <MessageComponent
-                msg='Which language do you want to talk'
+                msg='Which language do you want to talk?'
                 isOwnMessage={false}
                 key='language'
               />
@@ -65,7 +72,7 @@ const ChatBox = ({ socket }: SocketProps) => {
               {languageSelect ? (
                 <>
                   <MessageComponent
-                    msg={languageSelect}
+                    msg={languageSelect.label}
                     isOwnMessage={true}
                     key='languageSelect'
                   />
@@ -76,7 +83,6 @@ const ChatBox = ({ socket }: SocketProps) => {
                   />
                   {categories.map((category) => {
                     const { id, name } = category;
-                    console.log('category', category);
                     return (
                       <Button
                         key={id}
@@ -85,19 +91,19 @@ const ChatBox = ({ socket }: SocketProps) => {
                           await updateCategoryAndLanguage(
                             id,
                             chatRoomId,
-                            languageSelect,
+                            languageSelect.value,
                           );
-                          setLanguage(languageSelect);
+                          setLanguage(languageSelect.value);
                         }}
                       />
                     );
                   })}
                 </>
               ) : (
-                Object.values(translations).map((translation) => (
+                translations.map((translation) => (
                   <Button
                     label={translation.label}
-                    onClick={() => setLanguageSelect(translation.value)}
+                    onClick={() => setLanguageSelect(translation)}
                     key={translation.label}
                   />
                 ))
