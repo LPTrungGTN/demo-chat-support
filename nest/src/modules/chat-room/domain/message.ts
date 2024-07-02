@@ -1,9 +1,9 @@
 export class Message {
   constructor(
     private readonly content: string,
-    private readonly staffId: string,
-    private readonly id: number,
-    private readonly happinessId: string,
+    private readonly staffId?: string,
+    private readonly id?: number,
+    private readonly happinessId?: string,
   ) {}
 
   public get getStaffId(): string {
