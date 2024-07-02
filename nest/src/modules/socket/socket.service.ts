@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatRoom } from '@prisma/client';
 import { Server } from 'socket.io';
 
+import { getLanguageName } from '@/common/enums/language';
 import { RoomStatus } from '@/common/enums/room-status';
 import { ChatRoomRepository } from '@/modules/chat-room/chat-room.repository';
 import { GptService } from '@/modules/gpt/gpt.service';
@@ -52,13 +53,11 @@ export class SocketService {
     chatRoom: ChatRoom,
     message: string,
     createdAt: string,
-    chatRoomId: string,
     io: Server,
     clientId: string,
   ) {
     let threadId = chatRoom.threadId;
     const roomId = chatRoom.id;
-    const numericRoomId = Number(chatRoomId);
     if (!threadId) {
       threadId = await this.gptService.createThread();
       await this.chatRoomRepository.addThreadId(roomId, threadId);
@@ -68,14 +67,15 @@ export class SocketService {
     const find = gptAnwser.search('0824444444');
 
     if (find === -1) {
+      const msgSendGpt = `anwser by ${getLanguageName(chatRoom.language)}: ${gptAnwser}`;
       const gptMessage = await this.messageRepository.create({
         chatRoomId: roomId,
-        content: gptAnwser,
+        content: msgSendGpt,
         happinessId: null,
         staffId: null,
       });
 
-      io.to(chatRoomId).emit('newMessage', {
+      io.to(roomId.toString()).emit('newMessage', {
         chatRoomId: roomId,
         createdAt,
         message: {
@@ -101,8 +101,8 @@ export class SocketService {
 
     try {
       await Promise.all([
-        this.chatRoomRepository.createChatRoomUser(staff.id, numericRoomId),
-        this.chatRoomRepository.updateStatus(numericRoomId, RoomStatus.STAFF),
+        this.chatRoomRepository.createChatRoomUser(staff.id, roomId),
+        this.chatRoomRepository.updateStatus(roomId, RoomStatus.STAFF),
       ]);
     } catch (error) {
       console.log('Error in createChatRoomUser', error);

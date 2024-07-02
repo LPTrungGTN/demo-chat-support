@@ -126,7 +126,6 @@ export class AppGateway
           chatRoom,
           message,
           createdAt,
-          chatRoomId,
           this.io,
           client.id,
         );
