@@ -6,8 +6,6 @@ RUN ln -sf python3 /usr/bin/python
 
 COPY package*.json ./
 
-RUN ls -a
-
 RUN npm ci --omit=dev
 
 COPY . .
