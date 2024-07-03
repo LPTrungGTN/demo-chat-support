@@ -21,6 +21,6 @@ jobs:
           heroku auth:token
           heroku container:login
           docker build --platform linux/amd64 -t nest-chatbot:latest -f Dockerfile .
-          docker tag chatbot:latest registry.heroku.com/ai-chat-for-mobile-demo/web
+          docker tag nest-chatbot:latest registry.heroku.com/ai-chat-for-mobile-demo/web
           docker push registry.heroku.com/ai-chat-for-mobile-demo/web
           heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}
