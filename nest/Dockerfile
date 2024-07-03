@@ -10,7 +10,11 @@ RUN npm ci --omit=dev
 
 RUN npm install -g @nestjs/cli
 
-COPY . .
+COPY . ./
+
+RUN npm run db:migrate
+
+RUN npm run db:generate
 
 RUN npm run build
 
