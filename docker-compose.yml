@@ -35,7 +35,7 @@ services:
     container_name: nest
     build:
       context: .
-      dockerfile: nest/Dockerfile
+      dockerfile: nest/Dockerfile.dev
     volumes:
       - ./nest:/backend
     ports:
@@ -65,3 +65,7 @@ services:
 networks:
   chat_bot_network:
     driver: bridge
+# docker build --platform linux/amd64 -t chatbot:latest -f nest/Dockerfile .
+# docker tag chatbot:latest registry.heroku.com/ai-chat-for-mobile-demo/web
+# docker push registry.heroku.com/ai-chat-for-mobile-demo/web
+# heroku container:release web -a ai-chat-for-mobile-demo

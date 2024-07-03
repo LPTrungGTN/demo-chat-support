@@ -1,0 +1,25 @@
+name: Deploy to heroku.
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Authenticate with Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku auth:token
+          heroku container:login
+          docker build --platform linux/amd64 -t chatbot:latest -f
+          docker tag chatbot:latest registry.heroku.com/ai-chat-for-mobile-demo/web
+          docker push registry.heroku.com/ai-chat-for-mobile-demo/web
+          heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}
