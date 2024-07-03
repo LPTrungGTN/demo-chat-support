@@ -12,8 +12,6 @@ RUN npm install -g @nestjs/cli
 
 COPY . ./
 
-RUN npm run db:migrate
-
 RUN npm run db:generate
 
 RUN npm run build
