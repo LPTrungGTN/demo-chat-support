@@ -6,7 +6,9 @@ RUN ln -sf python3 /usr/bin/python
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+RUN ls -a
+
+RUN npm ci --omit=dev
 
 COPY . .
 
